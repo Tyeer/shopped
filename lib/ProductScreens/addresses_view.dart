@@ -1,4 +1,6 @@
 import 'package:chat2/ProductScreens/Edit_address_view.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -51,6 +53,8 @@ class _AddressesViewState extends State<AddressesView> {
     getSellerId();
   }
 
+  var currentuser = FirebaseAuth.instance.currentUser!.uid;
+String select = "";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,112 +81,116 @@ class _AddressesViewState extends State<AddressesView> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             width: double.infinity,
             height: double.infinity,
-            child: BlocProvider(
-              create: (context) => _addressBloc,
-              child: BlocBuilder<AddressBloc, AddressState>(
-                builder: (context, state) {
-                  if (state is AddressLoading) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                  if (state is AddressLoaded) {
-                    if (state.addresses.isEmpty) {
-                      return const Center(
-                        child: Text(
-                          "No addresses",
-                        ),
-                      );
-                    }
-                    return ListView.separated(
-                      itemCount: state.addresses.length,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      separatorBuilder: (BuildContext context, int index) =>
-                          const SizedBox(
-                        height: 16,
-                      ),
-                      itemBuilder: (context, index) {
-                        final address = state.addresses[index];
-                        return Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                              border: Border.all(
-                                  color: SecondaryDarkGrey, width: 1)),
-                          child: Row(
-                            children: [
-                              Radio<String>(
-                                activeColor: iconBlueDark,
-                                value: address.id,
-                                groupValue: _selectedValue,
-                                onChanged: (value) {
-                                  setState(() {
-                                    _selectedValue = value!;
-                                  });
-                                },
-                              ),
-                              const SizedBox(
-                                width: 20,
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    address.name,
-                                    style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  Text(
-                                    "+265" + address.phone,
-                                    style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  Text(
-                                    address.address,
-                                    style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  Text(
-                                    address.city,
-                                    style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(
-                                width: 20,
-                              ),
-                              Expanded(
-                                child: IconButton(
-                                  onPressed: () => Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => EditAddress(
-                                        address: address,
-                                      ),
-                                    ),
-                                  ),
-                                  icon: const Icon(
-                                    Icons.edit_outlined,
-                                    size: 30,
-                                    color: iconBlueDark,
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                        );
-                      },
-                    );
-                  }
+            child:
+            Column(
+              children: [
 
-                  return const Center(child: Text("Something went wrong"));
-                },
-              ),
-            ),
+    StreamBuilder<QuerySnapshot>  (
+    stream: FirebaseFirestore.instance
+        .collection('address')
+    .where('Uid', isEqualTo: currentuser)
+        .snapshots(),
+    builder: (context, snapshot) {
+    if (snapshot.hasError) {
+    return Center(child: Text("Something went wrong"));
+    }
+    else if (!snapshot.hasData) {
+    return Center(child: CircularProgressIndicator());
+    }
+
+    else {
+
+      return ListView.builder(
+      shrinkWrap: true,
+      physics: ClampingScrollPhysics(),
+    itemCount: snapshot.data!.docs.length,
+    scrollDirection: Axis.vertical,
+    itemBuilder: (context, index) {
+      DocumentSnapshot doc = snapshot.data!.docs[index];
+      return Container(
+      padding: const EdgeInsets.all(10),
+
+      child: Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+      Radio<String>(
+      activeColor: iconBlueDark,
+      value: select,
+      groupValue: _selectedValue,
+      onChanged: (value) {
+      setState(() {
+      _selectedValue = value!;
+      });
+      },
+      ),
+      const SizedBox(
+      width: 20,
+      ),
+      Column(
+
+
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+      Text(
+      doc['name'],
+      style: const TextStyle(
+      fontSize: 18,
+      fontWeight: FontWeight.bold),
+      ),
+      Text(
+      "+265" + doc['phone'],
+      style: const TextStyle(
+      fontSize: 18,
+      fontWeight: FontWeight.bold),
+      ),
+      Text(
+     doc['address'],
+      style: const TextStyle(
+      fontSize: 18,
+      fontWeight: FontWeight.bold),
+      ),
+      Text(
+      doc['city'],
+      style: const TextStyle(
+      fontSize: 18,
+      fontWeight: FontWeight.bold),
+      ),
+      ],
+      ),
+      const SizedBox(
+      width: 20,
+      ),
+      Expanded(
+      child: IconButton(
+      onPressed: () =>
+      Navigator.push(
+      context,
+      MaterialPageRoute(
+      builder: (context) =>
+      EditAddress(
+
+      ),
+      ),
+      ),
+      icon: const Icon(
+      Icons.edit_outlined,
+      size: 30,
+      color: iconBlueDark,
+      ),
+      ),
+      )
+      ],
+      ),
+      );
+
+      }
+      );
+    }
+    })
+
+              ],
+            )
           ),
           Positioned(
               left: 0,

@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:chat2/ProductScreens/addresses_view.dart';
 import 'package:chat2/main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -96,18 +97,18 @@ class _AddAddressViewState extends State<AddAddressView> {
   Future<void> addAddress(String name, String phone, String email, String city,
       String address) async {
     String addressId = generateRandomString(15);
-    await _firebaseFirestore?.collection('addresses').doc(addressId).set({
+    await _firebaseFirestore?.collection('address').doc(addressId).set({
       'name': name,
       'phone': phone,
       'email': email,
       'address': address,
       'city': city,
-      "userId": currentuser,
-      "addressId" : addressId,
+      "Uid": currentuser,
+      "Aid" : addressId,
       "createdAt": DateFormat('yyyy-MM-ddThh:mm:ss').format(DateTime.now()),
     }).then((value) {
       Navigator.of(context).push(MaterialPageRoute(builder: (context){
-        return  MyApp();
+        return  AddressesView();
     })
       ); }
     );
@@ -130,210 +131,240 @@ class _AddAddressViewState extends State<AddAddressView> {
                   colors: <Color>[Color(0xff016DD1), Color(0xff17259C)]),
             ),
           )),
-      body: Stack(
-        children: [
-          Container(
-            width: double.infinity,
-            height: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 20),
-                  const Text(
-                    "*Required fields.",
-                    style: TextStyle(fontSize: 18, color: SecondaryDarkGrey),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: iconBlueDark,
-                            width: 3,
-                          ),
+
+      body: Container(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontal),
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Container(
+
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 20),
+                        const Text(
+                          "*Required fields.",
+                          style: TextStyle(fontSize: 18, color: SecondaryDarkGrey),
                         ),
-                        child: const Text("1", style: TextStyle(fontSize: 18)),
-                      ),
-                      const SizedBox(width: 20),
-                      const Text(
-                        "Recipient Information",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  TextField(
-                    controller: _nameController,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: "Name and Surname*",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(18),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                          border: Border.all(
-                            color: SecondaryDarkGrey,
-                            width: 1,
-                          ),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: iconBlueDark,
+                                  width: 3,
+                                ),
+                              ),
+                              child: const Text("1", style: TextStyle(fontSize: 18)),
+                            ),
+                            const SizedBox(width: 20),
+                            const Text(
+                              "Recipient Information",
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                          ],
                         ),
-                        child: const Text("+265", style: TextStyle(fontSize: 18)),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: TextField(
-                          controller: _phoneController,
-                          keyboardType: TextInputType.phone,
+                        const SizedBox(height: 20),
+                        TextField(
+                          controller: _nameController,
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
-                            labelText: "Phone Number*",
+                            labelText: "Name and Surname*",
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: _emailController,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: "Email Address*",
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: iconBlueDark,
-                            width: 3,
-                          ),
-                        ),
-                        child: const Text("2", style: TextStyle(fontSize: 18)),
-                      ),
-                      const SizedBox(width: 20),
-                      const Text(
-                        "Address",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  TextField(
-                    controller: _cityController,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: "City*",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: _addressController,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: "Address*",
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-              left: 0,
-              right: 0,
-              bottom: 16,
-              child: Container(
-                  width: double.infinity,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () {},
-                          child: const Text('Cancel'),
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () {
-                            setState(() {
-                              isLoading = true;
-                            });
-                            if (_nameController.text.trim() == "" &&
-                                _phoneController.text.trim() == "" &&
-                                _emailController.text.trim() == "" &&
-                                _cityController.text.trim() == "" &&
-                                _addressController.text.isEmpty) {
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(const SnackBar(
-                                content: Text(
-                                  "Please all fields are required",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: textMedium),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(18),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                border: Border.all(
+                                  color: SecondaryDarkGrey,
+                                  width: 1,
                                 ),
-                                duration: Duration(seconds: 2),
-                              ));
-                            }
-                            addAddress(
-                                _nameController.text,
-                                '+265'+_phoneController.text,
-                                _emailController.text,
-                                _cityController.text,
-                                _addressController.text);
-                            _nameController.clear();
-                            _phoneController.clear();
-                            _emailController.clear();
-                            _cityController.clear();
-                            _addressController.clear();
-                            Fluttertoast.showToast(
-                                msg: "Address added successfully",  // message
-                                toastLength: Toast.LENGTH_SHORT, // length
-                                gravity: ToastGravity.CENTER,    // location
-                                timeInSecForIosWeb: 1               // duration
-                            );
-                            setState(() {
-                              isLoading = false;
-                            });
-                          },
-                          child: isLoading
-                              ? const Text(
-                                  'Saving...',
-                                )
-                              : const Text('Save'),
-                          style: OutlinedButton.styleFrom(
-                            primary: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            backgroundColor: PrimaryBlueOcean,
+                              ),
+                              child: const Text("+265", style: TextStyle(fontSize: 18)),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: TextFormField(
+                                controller: _phoneController,
+                                keyboardType: TextInputType.phone,
+                                validator: (value) {
+                                  if (value!.length != 9) {
+                                    return 'Please enter valid phone number';
+                                  }
+                                  return null;
+                                },
+                                decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: "Phone Number*",
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        TextField(
+                          controller: _emailController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: "Email Address*",
                           ),
                         ),
-                      )
-                    ],
-                  )))
-        ],
-      ),
+                        const SizedBox(height: 20),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: iconBlueDark,
+                                  width: 3,
+                                ),
+                              ),
+                              child: const Text("2", style: TextStyle(fontSize: 18)),
+                            ),
+                            const SizedBox(width: 20),
+                            const Text(
+                              "Address",
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        TextField(
+                          controller: _cityController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: "City*",
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        TextField(
+                          controller: _addressController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: "Address*",
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: 100,),
+
+                Container(
+                    width: double.infinity,
+                    padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const AddressesView(),
+                                ),
+                              );
+                            },
+                            child: const Text('Cancel'),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () {
+                              setState(() {
+                                isLoading = true;
+                              });
+                              if (_nameController.text.trim() == "" &&
+                                  _phoneController.text.trim() == "" &&
+                                  _emailController.text.trim() == "" &&
+                                  _cityController.text.trim() == "" &&
+                                  _addressController.text.isEmpty) {
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(const SnackBar(
+                                  content: Text(
+                                    "Please all fields are required",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: textMedium),
+                                  ),
+                                  duration: Duration(seconds: 2),
+                                ));
+                              }
+                              addAddress(
+                                  _nameController.text,
+                                  '+265'+_phoneController.text,
+                                  _emailController.text,
+                                  _cityController.text,
+                                  _addressController.text);
+                              _nameController.clear();
+                              _phoneController.clear();
+                              _emailController.clear();
+                              _cityController.clear();
+                              _addressController.clear();
+                              Fluttertoast.showToast(
+                                  msg: "Address added successfully",  // message
+                                  toastLength: Toast.LENGTH_SHORT, // length
+                                  gravity: ToastGravity.CENTER,    // location
+                                  timeInSecForIosWeb: 1               // duration
+                              );
+                              setState(() {
+                                isLoading = false;
+                              });
+                            },
+                            child: isLoading
+                                ? const Text(
+                              'Saving...',
+                            )
+                                : const Text('Save'),
+                            style: OutlinedButton.styleFrom(
+                              primary: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              backgroundColor: PrimaryBlueOcean,
+                            ),
+                          ),
+                        )
+                      ],
+                    ))
+
+              ]))
+
+
+
+
+
+
+
+
+    /*  Container(
+        child: ListView(
+          children: [
+
+          ],
+        ),
+      ),*/
     );
   }
 }

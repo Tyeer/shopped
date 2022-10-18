@@ -18,7 +18,7 @@ class _FollowsViewState extends State<FollowsView> {
     super.initState();
   }
 
-  CollectionReference products = FirebaseFirestore.instance.collection('followers');
+  CollectionReference products = FirebaseFirestore.instance.collection('follower');
   Future<void> deleteproducts(id){
 
 
@@ -27,15 +27,15 @@ class _FollowsViewState extends State<FollowsView> {
         .delete()
         .then((value) =>
         print(
-            'Product details deleted successfully'
+            'Unfollowing user'
         ))
         .catchError((error)=>
         print(
-            'Failed to delete Product : $error'
+            'Failed : $error'
         ));
 
   }
-  var currentuser = FirebaseAuth.instance.currentUser!.uid;
+
 
   @override
   Widget build(BuildContext context) {
@@ -58,8 +58,8 @@ class _FollowsViewState extends State<FollowsView> {
 
             StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
-                  .collection('followers')
-                  .where('Uid',isEqualTo: currentuser )
+                  .collection('follower')
+                  .where('Uid',isEqualTo: FirebaseAuth.instance.currentUser!.uid )
                   .snapshots(),
               builder: (context, snapshot) {
 
@@ -84,8 +84,8 @@ class _FollowsViewState extends State<FollowsView> {
   ),
             StreamBuilder<QuerySnapshot>  (
                 stream: FirebaseFirestore.instance
-                    .collection('followers')
-                    .where('Uid',isEqualTo: currentuser )
+                    .collection('follower')
+                    .where('Uid',isEqualTo: FirebaseAuth.instance.currentUser!.uid )
 
                     .snapshots(),
                 builder: (context, snapshot) {

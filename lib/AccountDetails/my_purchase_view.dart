@@ -33,7 +33,7 @@ class PurchaseView extends StatelessWidget {
             StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('orders')
-                  .where('sellerId',isEqualTo: currentuser )
+                  .where('buyerId',isEqualTo: currentuser )
 
                   .snapshots(),
               builder: (context, snapshot) {
@@ -92,36 +92,14 @@ class PurchaseView extends StatelessWidget {
                                                     width: 5,
                                                   ),
 
-                                                  StreamBuilder<QuerySnapshot>(
-                                                    stream: FirebaseFirestore.instance
-                                                        .collection('users')
-                                                        .where('Uid',isEqualTo: doc['buyerId'])
-                                                        .snapshots(),
-                                                    builder: (context, snapshot) {
-                                                      if (!snapshot.hasData) {
-                                                        return CircularProgressIndicator();
-                                                      } else {
-                                                        return
-                                                          ListView.builder(
-                                                              shrinkWrap: true,
-                                                              physics: ClampingScrollPhysics(),
-                                                              itemCount: snapshot.data!.docs.length,
-                                                              scrollDirection: Axis.vertical,
-                                                              itemBuilder: (context, index) {
-                                                                DocumentSnapshot doc = snapshot.data!.docs[index];
-                                                                return
                                                                   Text(
-                                                                    doc['Fullname'],
+                                                                    doc['buyername'],
                                                                     style: TextStyle(
                                                                         fontSize: 15,
                                                                         color: Colors.black,
                                                                         fontWeight: FontWeight.bold),
-                                                                  );
-                                                              }
-                                                          );
-                                                      }
-                                                    },
-                                                  ),
+                                                                  ),
+
 
 
 

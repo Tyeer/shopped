@@ -1,3 +1,4 @@
+import 'package:chat2/AuthScreens/Register_as_view.dart';
 import 'package:chat2/AuthScreens/phone_auth_view.dart';
 import 'package:flutter/material.dart';
 
@@ -30,7 +31,7 @@ class _SignInState extends State<SignIn> {
                   onPressed: () {
                     Navigator.push(context,
                         MaterialPageRoute(
-                            builder: (context) => PhoneAuthPage()));
+                            builder: (context) => RegisterAsView()));
                   },
                   icon: Icon( // <-- Icon
                     Icons.lock_open_rounded,

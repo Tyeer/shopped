@@ -8,10 +8,17 @@ import 'package:chat2/helpers/constants.dart';
 
 
 
-class OrdersView extends StatelessWidget {
+class OrdersView extends StatefulWidget {
+  @override
+  State<OrdersView> createState() => _OrdersViewState();
+}
+
+class _OrdersViewState extends State<OrdersView> {
   var currentuser = FirebaseAuth.instance.currentUser!.uid;
+
   final DateFormat format = DateFormat('yyyy-MM-ddTHH:mm:ss');
 
+  String buyer ="";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,9 +45,9 @@ class OrdersView extends StatelessWidget {
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
-                    return CircularProgressIndicator();
+                    return Center(child: CircularProgressIndicator());
                   } else {
-                    
+
                     return
                     ListView.builder(
                     shrinkWrap: true,
@@ -49,6 +56,8 @@ class OrdersView extends StatelessWidget {
     scrollDirection: Axis.vertical,
     itemBuilder: (context, index) {
                   DocumentSnapshot doc = snapshot.data!.docs[index];
+
+                  buyer = doc['buyerId'];
                   return  GestureDetector(
                       onTap: () { Navigator.push(
                           context,
@@ -86,42 +95,20 @@ class OrdersView extends StatelessWidget {
                                             "https://www.svgrepo.com/show/13663/user.svg",
                                             height: 20,
 
-                                            color: Colors.amberAccent,
+                                            color: Colors.yellow[800],
                                           ),
                                           const SizedBox(
                                             width: 5,
                                           ),
 
-                                          StreamBuilder<QuerySnapshot>(
-                                            stream: FirebaseFirestore.instance
-                                                .collection('users')
-                                                .where('Uid',isEqualTo: doc['buyerId'])
-                                                .snapshots(),
-                                            builder: (context, snapshot) {
-                                              if (!snapshot.hasData) {
-                                                return CircularProgressIndicator();
-                                              } else {
-                                                return
-                                                  ListView.builder(
-                                                shrinkWrap: true,
-                                                physics: ClampingScrollPhysics(),
-    itemCount: snapshot.data!.docs.length,
-    scrollDirection: Axis.vertical,
-    itemBuilder: (context, index) {
-      DocumentSnapshot doc = snapshot.data!.docs[index];
-      return
+
         Text(
-          doc['Fullname'],
+          doc['buyername'],
           style: TextStyle(
               fontSize: 15,
               color: Colors.black,
               fontWeight: FontWeight.bold),
-        );
-    }
-                                                  );
-    }
-    },
-    ),
+        )
 
 
 
@@ -284,7 +271,7 @@ class OrdersView extends StatelessWidget {
               ),
 
 
-             
+
 
 
 

@@ -17,6 +17,8 @@ import 'package:flutter_svg/flutter_svg.dart';
    var currentuser = FirebaseAuth.instance.currentUser!.uid;
    var total2 ;
    var sumTotal2 ;
+
+   String addressid = "";
    @override
    Widget build(BuildContext context) {
 
@@ -25,20 +27,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
      Scaffold(
 
-     /*appBar: AppBar(
-     centerTitle: true,
-     title: const Text(
-     "Order Confirmation",
-     ),
-     flexibleSpace: Container(
-     decoration: const BoxDecoration(
-     gradient: LinearGradient(
-     begin: Alignment.centerLeft,
-     end: Alignment.centerRight,
-     colors: <Color>[Color(0xff016DD1), Color(0xff17259C)]),
-     ),
-     )
-     ),*/
+
 
        appBar: AppBar(
          title: appBar(context),
@@ -110,6 +99,7 @@ import 'package:flutter_svg/flutter_svg.dart';
      itemBuilder: (context, index) {
      DocumentSnapshot doc = snapshot.data!.docs[index];
 
+     addressid = doc['addressId'];
      sumTotal2 = int.tryParse(doc['totalAmount']);
      total2 = sumTotal2 + sumTotal2;
 
@@ -282,8 +272,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 
                  StreamBuilder<QuerySnapshot>  (
                      stream: FirebaseFirestore.instance
-                         .collection('addresses').
-                     where('userId', isEqualTo: currentuser)
+                         .collection('address').
+                     where('Aid', isEqualTo: addressid)
 
                          .snapshots(),
                      builder: (context, snapshot) {

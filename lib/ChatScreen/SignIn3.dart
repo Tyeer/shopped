@@ -2,22 +2,24 @@ import 'package:chat2/AuthScreens/Register_as_view.dart';
 import 'package:chat2/AuthScreens/phone_auth_view.dart';
 import 'package:flutter/material.dart';
 
-class Sign extends StatefulWidget {
-  const Sign({Key? key}) : super(key: key);
+class SignInt extends StatefulWidget {
+  const SignInt({Key? key}) : super(key: key);
 
   @override
-  State<Sign> createState() => _SignState();
+  State<SignInt> createState() => _SignIntState();
 }
 
-class _SignState extends State<Sign> {
+class _SignIntState extends State<SignInt> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0.0,
-        iconTheme: IconThemeData(color: Colors.black),
-      ),
+     /* appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.blue[800],
+        elevation: 0,
+        centerTitle: true,
+        title: const Center(child: Text('Product Details'),),
+      ),*/
       body: Container(
 
           child: Opacity(

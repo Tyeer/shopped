@@ -8,6 +8,7 @@ import 'package:flutter_chat_bubble/bubble_type.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
 import 'package:flutter_chat_bubble/clippers/chat_bubble_clipper_6.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 class ChatDetail extends StatefulWidget {
   const ChatDetail({Key? key, this.friendUid, this.friendName, this.friendImage}) : super(key: key);
@@ -30,6 +31,9 @@ class _ChatDetailState extends State<ChatDetail> {
   _ChatDetailState(this.friendUid, this.friendName, this.friendImage);
 
   void initState(){
+
+    var date = DateFormat('MMM d, yyyy');
+    String dat = date.format(DateTime.now()).toString();
     super.initState();
     chats.where('users', isEqualTo: {friendUid:null, currentuser:null}).limit(1).get().then((
         QuerySnapshot querySnapshot
@@ -40,8 +44,15 @@ class _ChatDetailState extends State<ChatDetail> {
       else{
         chats.add({
           'users':{
-            currentuser:null,friendUid:null
-          }
+            currentuser:null,
+            friendUid:null,
+          },
+          'friendName':friendName,
+          'friendImage':friendImage,
+          'friendUid':friendUid,
+          'date': dat,
+          'Uid': currentuser,
+
         }).then((value) => {
           chatDocId = value
         });
@@ -60,8 +71,16 @@ class _ChatDetailState extends State<ChatDetail> {
       'Uid':  currentuser,
       'msg': msg,
     }).then((value) {
+
+
+
       _textController.text = '';
     });
+
+
+
+
+
 
   }
 
@@ -276,12 +295,8 @@ class _ChatDetailState extends State<ChatDetail> {
                               ),
                             ),
                           ),
-                         /* Expanded(
-                              child: TextField(
 
-                                controller: _textController,
-                          )),*/
-
+SizedBox(width: 10,),
                           Container(
                               decoration:
                               const BoxDecoration(shape: BoxShape.circle, color: Colors.indigo),

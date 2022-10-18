@@ -1,6 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:chat2/HomeScreens/CategoriyView.dart';
 import 'package:chat2/HomeScreens/Search.dart';
+import 'package:chat2/HomeScreens/search_screen.dart';
 import 'package:chat2/ProductScreens/ProductDetails.dart';
 import 'package:chat2/bottom_nav.dart';
 import 'package:chat2/helpers/constants.dart';
@@ -8,6 +10,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -23,6 +27,41 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<String> getCurrentUID() async{
     return (_auth.currentUser)!.uid;
   }
+
+  bool _isloading = false;
+
+  void _validate(String productid,  String image, String name, String price, String description){
+    var dateformat = DateFormat('MMM d, yyyy');
+    String date = dateformat.format(DateTime.now()).toString();
+    DocumentReference ref =  FirebaseFirestore.instance.collection('history').doc();
+    Map<String, dynamic> data ={
+
+
+
+      'productid': productid,
+      'Date Ordered': date,
+      'Uid': FirebaseAuth.instance.currentUser?.uid,
+      'price': price,
+      'name': name,
+      'image': image,
+      'Hid': ref,
+
+    };
+    ref.set(data).then((value) {
+      Navigator.of(context).push(MaterialPageRoute(builder: (context){
+        return ProductDetails(
+          id: productid,
+
+        );
+      }));
+    }
+    );
+
+  }
+  void navigateToSearchScreen(String query) {
+
+    Navigator.pushNamed(context, SearchScreen.routeName, arguments: query);
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,6 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Row(
+
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     GestureDetector(
@@ -61,19 +101,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     SizedBox(width: 10,),
                     Expanded(
                       child: GestureDetector(
-                        onTap: (){
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>Search()));
-                        },
+
+
                         child: Container(
                           height: 40,
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: TextField(
+                          child: TextFormField(
+                            onFieldSubmitted: navigateToSearchScreen,
                             textInputAction: TextInputAction.search,
                             decoration: InputDecoration(
                               enabledBorder: InputBorder.none,
@@ -91,10 +128,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                     color: Colors.white,
                                   ),
                                   onPressed: (){
-                                    Navigator.push(
+                                    /*Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) =>Search()));
+                                            builder: (context) =>Search()));*/
                                   },
                                 ),
                               ),
@@ -449,150 +486,211 @@ class _HomeScreenState extends State<HomeScreen> {
                       ;
                   }
                   else {
-                    return GridView.builder(
-                      itemCount: snapshot.data!.docs.length,
-                        scrollDirection: Axis.vertical,
-                        shrinkWrap: true,
+                    return
+                      GridView.builder(
+                        itemCount: snapshot.data!.docs.length,
 
-                        physics: ClampingScrollPhysics(),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          mainAxisSpacing: 0,
-                          crossAxisSpacing: 0,
-
-                          childAspectRatio: 0.75,
-                        ),
-
-                        itemBuilder: (context, index) {
-
-                          DocumentSnapshot doc = snapshot.data!.docs[index];
-                          return
-                            GestureDetector(
-                            onTap: ()async{
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => ProductDetails(id: doc['productId'],)));
-                            },
-                            child:
-
-                                Container(
+                          shrinkWrap: true,
+                          physics: const ScrollPhysics(),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: kDefaultPaddin,
+                            crossAxisSpacing: kDefaultPaddin,
+                            childAspectRatio: 0.6,
+                          ),
 
 
+                          itemBuilder: (context, index) {
 
-                                  margin: EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Colors.white,
-                                  ),
-                                  child: Stack(
-                                    children: [
-                                      Positioned(
-                                        right: 0,
-                                        bottom: 10,
-                                        child: Container(
-                                          decoration: BoxDecoration(
+                            DocumentSnapshot doc = snapshot.data!.docs[index];
 
-                                            borderRadius: BorderRadius.circular(5),
-                                          ),
+                            var productid = doc['productId'];
+                            var image = doc['imageUrl'];
+                            var name = doc['name'];
+                            var price  = doc['price'];
+                            var description = doc['description'];
+
+                            return
+                              Container(
+                                margin: EdgeInsets.all(10),
+                                child: GestureDetector(
+                                onTap: ()async{
+                                  _validate(productid, image, name, price, description );
+                                },
+                                child:
+
+                                    Column(
+
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children:<Widget>[
+
+
+                                        Expanded(
                                           child: Container(
-                                            margin: const EdgeInsets.all(8),
-                                            child: Icon(
-                                              Icons.favorite_border_outlined, size: 20, color: Colors.grey,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Positioned(
-                                        right: 10,
-                                        bottom:0,
-                                        child: Container(
-                                          decoration: BoxDecoration(
-
-                                            borderRadius: BorderRadius.circular(5),
-                                          ),
-                                          child: Text(
-                                              '  10'
-
-                                          ),
-                                        ),
-                                      ),
-                                      Column(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-
-                                          Container(
                                             height: 200,
                                             width: double.infinity,
                                             decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(10),
+                                              borderRadius: BorderRadius.circular(5),
                                               image: DecorationImage(
-                                                image: NetworkImage(
+                                                image: CachedNetworkImageProvider(
                                                   doc['imageUrl'],
                                                 ),
                                                 fit: BoxFit.cover,
                                               ),
                                             ),
                                           ),
-                                          SizedBox(
-                                            width: 8,
+                                        ),
+
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                        Text(
+                                          // products is out demo list
+                                          doc['name'].toString(),
+                                          style: const TextStyle(
+                                              fontSize: textMedium,
+                                              fontWeight: FontWeight.bold
                                           ),
-                                          Container(
-                                            padding: EdgeInsets.symmetric(vertical: 0, horizontal: 13.0),
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                SizedBox(
-                                                  height: 3,
-                                                ),
-
-                                                Text(
-                                                  doc['name'],
-                                                  style: Theme.of(context).textTheme.headline3!.copyWith(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                  height: 3,
-                                                ),
-                                                Text(
-                                                  doc['description'],
-                                                  overflow: TextOverflow.ellipsis,
-                                                  style: Theme.of(context).textTheme.headline3!.copyWith(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                  height: 5,
-                                                ),
-                                                Text("K"+ (doc['price']).toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')+'.00',
-                                                  style: Theme.of(context).textTheme.subtitle1!.copyWith(
-                                                    color: Colors.red,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                                        ),
+                                        const SizedBox(
+                                          height: 3,
+                                        ),
+                                        Text(
+                                          // products is out demo list
+                            doc['description'],
+                                          style: const TextStyle(fontSize: textMedium),
+                                        ),
+                                        const SizedBox(
+                                          height: 5,
+                                        ),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              'K ${(doc['price']).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}.00',
+                                              style:
+                                              const TextStyle(fontWeight: FontWeight.bold, color: priceColor),
+                                            )
+                                          ],
+                                        ),
+                                        /*Container(
+                                          margin: EdgeInsets.all(10),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(10),
+                                            color: Colors.white,
                                           ),
+                                          child: Stack(
+                                            children: [
+                                              Positioned(
+                                                right: 0,
+                                                bottom: 35,
 
-                                        ],
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+
+                                                    borderRadius: BorderRadius.circular(5),
+                                                  ),
+                                                  child: Container(
+                                                    margin: const EdgeInsets.all(8),
+                                                    child: Icon(
+                                                      Icons.favorite_border_outlined, size: 20, color: Colors.grey,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              Positioned(
+                                                right: 10,
+                                                bottom:30,
+
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+
+                                                    borderRadius: BorderRadius.circular(5),
+                                                  ),
+                                                  child: Text(
+                                                      '10'),
+                                                ),
+                                              ),
+                                              Column(
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+
+                                                  Container(
+                                                    height: 180,
+                                                    width: double.infinity,
+                                                    decoration: BoxDecoration(
+                                                      borderRadius: BorderRadius.circular(10),
+                                                      image: DecorationImage(
+                                                        image: NetworkImage(
+                                                          doc['imageUrl'],
+                                                        ),
+                                                        fit: BoxFit.cover,
+                                                      ),
+                                                    ),
+                                                  ),
+
+                                                  Container(
+                                                    padding: EdgeInsets.symmetric(vertical: 0, horizontal: 10.0),
+                                                    child: Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        SizedBox(
+                                                          height: 3,
+                                                        ),
+
+                                                        Text(
+                                                          doc['name'],
+                                                          style: Theme.of(context).textTheme.headline3!.copyWith(
+                                                            fontSize: 14,
+                                                            fontWeight: FontWeight.w600,
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          height: 3,
+                                                        ),
+                                                        Padding(
+                                                          padding: EdgeInsets.fromLTRB(0, 0, 20, 0),
+                                                          child: Text(
+                                                            doc['description'],
+                                                            overflow: TextOverflow.ellipsis,
+                                                            style: Theme.of(context).textTheme.headline3!.copyWith(
+                                                              fontSize: 14,
+                                                              fontWeight: FontWeight.w600,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          height: 5,
+                                                        ),
+                                                        Text("K"+ (doc['price']).toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')+'.00',
+                                                          style: Theme.of(context).textTheme.subtitle1!.copyWith(
+                                                            color: Colors.red,
+                                                            fontWeight: FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+
+                                                ],
 
 
-                                      ),
+                                              ),
 
 
 
-                                    ],
-                                  ),
-                                ),
+                                            ],
+                                          ),
+                                        ),*/
+                                      ],
+                                    ),
 
-                          );
+                            ),
+                              );
 
-                        }
-                    );
+                          }
+                      );
                   }
                 }),
 

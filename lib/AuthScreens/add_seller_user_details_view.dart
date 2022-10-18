@@ -42,7 +42,7 @@ class _UserSellerDetailState extends State<UserSellerDetail> {
     await _firebaseFirestore?.collection('users').doc(userid).set({
       'Fullname': username.text,
       'Password': password.text,
-      'Email': FirebaseAuth.instance.currentUser?.email,
+     // 'Email': FirebaseAuth.instance.currentUser?.email,
       'Uid':FirebaseAuth.instance.currentUser?.uid,
       'Phonenumber': widget.id,
       'Type': 'Seller',
@@ -127,24 +127,19 @@ class _UserSellerDetailState extends State<UserSellerDetail> {
     super.dispose();
   }
 
-  final TextEditingController email = TextEditingController();
+  ///final TextEditingController email = TextEditingController();
   final TextEditingController pasword = TextEditingController();
   final TextEditingController username = TextEditingController();
 
 
   void validator (){
-    if (email.text.isEmpty && pasword.text.isEmpty && username.text.isEmpty ){
+    if ( pasword.text.isEmpty && username.text.isEmpty ){
 
       Fluttertoast.showToast(
           msg:'Please Enter Username, Email and Password '
       );
     }
-    else if(email.text.isEmpty){
 
-      Fluttertoast.showToast(
-          msg:'Please Enter Email '
-      );
-    }
     else if(pasword.text.isEmpty){
       Fluttertoast.showToast(
           msg:'Please Enter Password '
@@ -161,13 +156,13 @@ class _UserSellerDetailState extends State<UserSellerDetail> {
       setState(() {
         loading = true;
       });
-      register();
+      add();
     }
   }
 
   bool loading =false;
-  void register(){
-    FirebaseAuth.instance.createUserWithEmailAndPassword(email: email.text, password: pasword.text).then((UserCredential userCredetial){
+/*  void register(){
+    FirebaseAuth.instance.createUserWithEmailAndPassword( password: pasword.text).then((UserCredential userCredetial){
 
       //move to home screen
 
@@ -189,7 +184,7 @@ class _UserSellerDetailState extends State<UserSellerDetail> {
       );
     });
 
-  }
+  }*/
 
 
 
@@ -336,7 +331,7 @@ class _UserSellerDetailState extends State<UserSellerDetail> {
       SizedBox(
         height: 20,
       ),
-      Container(
+    /*  Container(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -379,7 +374,7 @@ class _UserSellerDetailState extends State<UserSellerDetail> {
             ),
           ],
         ),
-      ),
+      ),*/
       SizedBox(
         height: 20,
       ),

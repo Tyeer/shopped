@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat2/ChatScreen/ChatDetail.dart';
 import 'package:chat2/HomeScreens/Search.dart';
 import 'package:chat2/ProductScreens/ProductDetails.dart';
@@ -49,7 +50,7 @@ final ShopName;
 final ShopLocation;
 
 
-  final currentuser = FirebaseAuth.instance.currentUser!.uid;
+ // final currentuser = FirebaseAuth.instance.currentUser!.uid;
   @override
   State<ShopDetails> createState() => _ShopDetailsState();
 }
@@ -66,7 +67,7 @@ class _ShopDetailsState extends State<ShopDetails> {
     return List.generate(len, (index) => _chars[r.nextInt(_chars.length)]).join();
   }
   String _userId = "";
-  final currentuser = FirebaseAuth.instance.currentUser!.uid;
+//final currentuser = FirebaseAuth.instance.currentUser!.uid;
   Future<void> addReview(String rating, String description) async {
     String reviewId = generateRandomString(15);
     await _firebaseFirestore?.collection('reviews').doc(reviewId).set({
@@ -74,7 +75,7 @@ class _ShopDetailsState extends State<ShopDetails> {
       'rating' : rating,
       'likes' : "0",
       'sellerid': widget.Uid,
-      'buyerId': currentuser,
+     'buyerId': FirebaseAuth.instance.currentUser!.uid,
       'reviewId' : reviewId,
       'buyername': widget.Fullname,
       'buyerImage': widget.userImage,
@@ -100,54 +101,8 @@ class _ShopDetailsState extends State<ShopDetails> {
   ProductBloc(productRepository: Repository());
   final ReviewBloc _reviewBloc = ReviewBloc(reviewRepository: Repository());
   final DateFormat format = DateFormat('yyyy-MM-ddTHH:mm:ss');
-  int _followersCount = 0;
-  int _followingCount = 0;
-  bool _isFollowing = false;
-  getFollowersCount(shopid) async {
-    int followersCount =
-    await DatabaseServices.followersNum(shopid);
-    if (mounted) {
-      setState(() {
-        _followersCount = followersCount;
-      });
-    }
-  }
-  getFollowingCount(number) async {
-    int followingCount =
-    await DatabaseServices.followingNum(number);
-    if (mounted) {
-      setState(() {
-        _followingCount = followingCount;
-      });
-    }
-  }
-  unFollowUser( id) {
-    DatabaseServices.unFollowUser(currentuser, id);
-    setState(() {
-      _isFollowing = false;
-      _followersCount--;
-    });
-  }
-  followUser( id) {
-    DatabaseServices.followUser(currentuser, id);
-    setState(() {
-      _isFollowing = true;
-      _followersCount++;
-    });
-  }
-  setupIsFollowing(currentid, id) async {
-    bool isFollowingThisUser = await DatabaseServices.isFollowingUser(currentid, id);
-    setState(() {
-      _isFollowing = isFollowingThisUser;
-    });
-  }
-  void initState3() {
-    super.initState();
-    getFollowersCount(_followersCount);
-    getFollowingCount(_followingCount);
-    setupIsFollowing(currentuser, currentuser);
 
-  }
+
   Widget buildCategory(int index) {
     return GestureDetector(
       onTap: () {
@@ -390,14 +345,27 @@ height: MediaQuery.of(context).size.height* .50,
     crossAxisAlignment: CrossAxisAlignment.center,
     children: [
     const SizedBox(height: 10),
-    Text(
-    widget.items.toString(),
-    style: const TextStyle(
-    fontSize: textMedium,
-    color: SecondaryDarkGrey,
-    fontWeight: FontWeight.w700,
-    ),
-    ),
+        StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('products')
+              .where('sellerId',isEqualTo: widget.Uid )
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return CircularProgressIndicator();
+            } else {
+              return
+                Text(
+                  snapshot.data!.docs.length.toString().toUpperCase(),
+                  style: const TextStyle(
+                    fontSize: textMedium,
+                    color: SecondaryDarkGrey,
+                    fontWeight: FontWeight.w700,
+                  ),
+                );
+            }
+          },
+        ),
     const SizedBox(height: 5),
     const Text(
     "Items",
@@ -410,31 +378,7 @@ height: MediaQuery.of(context).size.height* .50,
     const SizedBox(height: 10),
 
 
-      _isFollowing ?
-      SizedBox(
-        height: 35,
-        width: 100,
-        child: TextButton(
-          onPressed: ()
-          {
 
-            unFollowUser( widget.Uid);
-
-          },
-          child: const Text(
-            'UnFollow',
-          ),
-          style: TextButton.styleFrom(
-              primary: Colors.white,
-              alignment: Alignment.center,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5)),
-              backgroundColor: Colors.redAccent,
-              textStyle: const TextStyle(
-                fontSize: 14,
-              )),
-        ),
-      ):
 
 
       SizedBox(
@@ -443,15 +387,14 @@ height: MediaQuery.of(context).size.height* .50,
         child: TextButton(
           onPressed: ()
           {
-            followUser( widget.Uid );
+          //  followUser( widget.Uid );
             var dateFormat = DateFormat('MMM d, yyyy');
             String date = dateFormat.format(DateTime.now()).toString();
             String followid = generateRandomString(15);
             _firebaseFirestore?.collection('follower').doc(followid).set({
 
 
-
-              'Uid': currentuser,
+              'Uid': FirebaseAuth.instance.currentUser!.uid,
               'sellerId': widget.Uid,
               'follwid': followid,
               'userImage': widget.userImage,
@@ -494,14 +437,26 @@ height: MediaQuery.of(context).size.height* .50,
     Column(
     children: [
     const SizedBox(height: 10),
-    Text(
-    "${_followersCount}",
-    style: const TextStyle(
-    fontSize: textMedium,
-    color: SecondaryDarkGrey,
-    fontWeight: FontWeight.w700,
-    ),
-    ),
+      StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('follower')
+            .where('sellerId',isEqualTo: widget.Uid )
+            .snapshots(),
+        builder: (context, snapshot) {
+
+          return
+            Text(
+              snapshot.data!.docs.length.toString().toUpperCase(),
+              style: const TextStyle(
+                fontSize: textMedium,
+                color: SecondaryDarkGrey,
+                fontWeight: FontWeight.w700,
+              ),
+            );
+
+
+        },
+      ),
     const SizedBox(height: 5),
     const Text(
     "Followers",
@@ -575,8 +530,8 @@ height: MediaQuery.of(context).size.height* .50,
     ])
 
     ),
-    Expanded(
-    child: Container(
+
+    Container(
       color: Colors.white,
       child: Column(
         children: [
@@ -624,138 +579,89 @@ height: MediaQuery.of(context).size.height* .50,
                 else {
                   return GridView.builder(
                       itemCount: snapshot.data!.docs.length,
-                      scrollDirection: Axis.vertical,
                       shrinkWrap: true,
-                      physics: ClampingScrollPhysics(),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      physics: const ScrollPhysics(),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
-                        mainAxisSpacing: 0,
-                        crossAxisSpacing: 0,
-                        childAspectRatio: 0.75,
+                        mainAxisSpacing: kDefaultPaddin,
+                        crossAxisSpacing: kDefaultPaddin,
+                        childAspectRatio: 0.6,
                       ),
 
                       itemBuilder: (context, index) {
 
                         DocumentSnapshot doc = snapshot.data!.docs[index];
                         return
-                          GestureDetector(
-                            onTap: ()async{
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => ProductDetails(id: doc['productId'],)));
-                            },
-                            child:
+                          Container(
+                            margin: EdgeInsets.all(10),
+                            child: GestureDetector(
+                              onTap: ()async{
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => ProductDetails(id: doc['productId'],)));
+                              },
+                              child:
 
-                            Container(
+                              Column(
 
-                              //color: Color(0xfff2f2f2),
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children:<Widget>[
 
-                              width: 185,
-                              margin: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: Colors.white,
-                              ),
-                              child: Stack(
-                                children: [
-                                  Positioned(
-                                    right: 0,
-                                    bottom: 10,
+
+                                  Expanded(
                                     child: Container(
+                                      height: 200,
+                                      width: double.infinity,
                                       decoration: BoxDecoration(
-
                                         borderRadius: BorderRadius.circular(5),
-                                      ),
-                                      child: Container(
-                                        margin: const EdgeInsets.all(8),
-                                        child: Icon(
-                                          Icons.favorite_border_outlined, size: 20, color: Colors.grey,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    right: 10,
-                                    bottom:0,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-
-                                        borderRadius: BorderRadius.circular(5),
-                                      ),
-                                      child: Text(
-                                          '  10'
-
-                                      ),
-                                    ),
-                                  ),
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-
-                                      Container(
-                                        height: 200,
-                                        width: double.infinity,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(10),
-                                          image: DecorationImage(
-                                            image: NetworkImage(
-                                              doc['imageUrl'],
-                                            ),
-                                            fit: BoxFit.fill,
+                                        image: DecorationImage(
+                                          image: CachedNetworkImageProvider(
+                                            doc['imageUrl'],
                                           ),
+                                          fit: BoxFit.cover,
                                         ),
                                       ),
+                                    ),
+                                  ),
 
-
-                                      Container(
-                                        padding: EdgeInsets.symmetric(vertical: 0, horizontal: 10.0),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            SizedBox(
-                                              height: 3,
-                                            ),
-
-                                            Text(
-                                              doc['name'],
-                                              style: Theme.of(context).textTheme.headline3!.copyWith(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              height: 3,
-                                            ),
-                                            Text(
-                                              doc['description'],
-                                              overflow: TextOverflow.ellipsis,
-                                              style: Theme.of(context).textTheme.headline3!.copyWith(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              height: 5,
-                                            ),
-                                            Text("K"+ (doc['price']).toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')+'.00',
-                                              style: Theme.of(context).textTheme.subtitle1!.copyWith(
-                                                color: Colors.red,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-
-                                      // const Spacer(),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Text(
+                                    // products is out demo list
+                                    doc['name'].toString(),
+                                    style: const TextStyle(
+                                        fontSize: textMedium,
+                                        fontWeight: FontWeight.bold
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 3,
+                                  ),
+                                  Text(
+                                    // products is out demo list
+                                    doc['description'].toString(),
+                                    style: const TextStyle(fontSize: textMedium),
+                                  ),
+                                  const SizedBox(
+                                    height: 5,
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'K ${(doc['price']).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}.00',
+                                        style:
+                                        const TextStyle(fontWeight: FontWeight.bold, color: priceColor),
+                                      )
                                     ],
                                   ),
+
                                 ],
                               ),
-                            ),
 
+                            ),
                           );
                       }
                   );
@@ -1262,7 +1168,7 @@ height: MediaQuery.of(context).size.height* .50,
         ],
       ),
     ),
-    ),
+
 
 
     ])
@@ -1306,7 +1212,6 @@ class DatabaseServices {
         .collection('Followers')
         .doc(currentUserId)
         .set({});
-
 
     Fluttertoast.showToast(
         msg: "Following User",  // message

@@ -15,20 +15,35 @@ class OrderDetailsView extends StatefulWidget {
 
 class _OrderDetailsViewState extends State<OrderDetailsView> {
 
-  final List<String> _condition = ["Pending", "Confirmed", "Canceled"];
-  late TextEditingController _conditionController;
+  final List<String> _condition = ["Pending", "Confirmed", "Cancelled"];
   String? _conditionSelectedValue;
   CollectionReference products = FirebaseFirestore.instance.collection('orders');
 
+  Future <void> putofflineproducts(){
+    return  products.doc(widget.id2).update({
 
-  Future <void> UpdateOrderStatus(id2){
-    return  products.doc(id2).update({
+      'orderStatus': _conditionSelectedValue,
 
-      'orderStatus': 'Confirmed',
 
     }).then((value) =>
         print(
-            'Product is live'
+            'Product is Offline'
+        ))
+        .catchError((error)=>
+        print(
+            '$error'
+        ));
+
+  }
+
+  Future <void> UpdateOrderStatus(){
+    return  FirebaseFirestore.instance.collection('orders').doc(widget.id2).update({
+
+      'orderStatus': _conditionSelectedValue,
+
+    }).then((value) =>
+        print(
+            'Order Updated'
         ))
         .catchError((error)=>
         print(
@@ -136,7 +151,7 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
     child: OutlinedButton(
     onPressed: () =>{
 
-      UpdateOrderStatus(widget.id2)
+    putofflineproducts()
     }, child: Text('Save'),
         style: OutlinedButton.styleFrom(
           primary: Colors.white,
@@ -153,7 +168,8 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
       );
     });
   }
-
+  String addressid = "";
+String order_id = '';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -193,6 +209,10 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
         scrollDirection: Axis.vertical,
         itemBuilder: (context, index) {
           DocumentSnapshot doc = snapshot.data!.docs[index];
+
+          order_id = doc['Oid'];
+          addressid = doc['addressId'];
+
           return
 
       Container(child: Column(
@@ -279,8 +299,10 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
                               side: BorderSide(
                                 color: greenColor,), //<-- SEE HERE
                             ),
-                            onPressed: ()=>{
-                              ConfirmBottomSheet(context)
+                            onPressed: (){
+
+
+                           ConfirmBottomSheet(context);
                             },
                             child: Text('Confirm Payment',
                               style: TextStyle(fontSize: 15,
@@ -320,88 +342,86 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
                 ),
 
                 SizedBox(height: 10,),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Chitawira",
-                            style: const TextStyle(
-                                fontSize: textMedium,
-                                fontWeight: FontWeight.w400),
-                          ),
-                          Text(
-                            "+265 99 806 8724",
-                            style: const TextStyle(
-                                fontSize: textMedium,
-                                fontWeight: FontWeight.w400),
-                          ),
-                          Text(
-                            "Private Bag 11",
-                            style: const TextStyle(
-                                fontSize: textMedium,
-                                fontWeight: FontWeight.w400),
-                          ),
-                          Text(
-                            'Blantyre',
-                            style: const TextStyle(
-                                fontSize: textMedium,
-                                fontWeight: FontWeight.w400),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 30,),
-                      Text('Tracking Number',
-                        style: TextStyle(color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Quickand',
+                StreamBuilder<QuerySnapshot>  (
+                    stream: FirebaseFirestore.instance
+                        .collection('address').
+                    where('Aid', isEqualTo: addressid)
 
-                        ),
-                      ),
+                        .snapshots(),
+                    builder: (context, snapshot) {
 
-                      SizedBox(height: 10,),
-                      Container(
-                        width: 350,
-                        height: 35,
-                        margin: const EdgeInsets.all(0.0),
-                        child: TextField(
+                      if (snapshot.hasError) {
+                        return Center(child: Text("Something went wrong"));
+                      }
+                      else if (!snapshot.hasData) {
+                        return CircularProgressIndicator();
+                      }
+
+                      else {
+                        return ListView.builder(
+                            shrinkWrap: true,
+                            physics: ClampingScrollPhysics(),
+                            itemCount: snapshot.data!.docs.length,
+                            scrollDirection: Axis.vertical,
+                            itemBuilder: (context, index) {
+                              DocumentSnapshot doc = snapshot.data!.docs[index];
+                              return
+
+                                Container(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
 
 
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 12,
-                            fontFamily: 'Quicksand',
-                            fontWeight: FontWeight.bold,
-
-                          ),
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: "Put tracking number",
-
-                            suffixIcon: Icon(Icons.edit,
 
 
-                              size: 15,
-                            ),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            doc['name'],
+                                            style: const TextStyle(
+                                                fontSize: textMedium,
+                                                fontWeight: FontWeight.w400),
+                                          ),
+                                          Text(
+                                            doc['phone'],
+                                            style: const TextStyle(
+                                                fontSize: textMedium,
+                                                fontWeight: FontWeight.w400),
+                                          ),
+                                          Text(
+                                            doc['address'],
+                                            style: const TextStyle(
+                                                fontSize: textMedium,
+                                                fontWeight: FontWeight.w400),
+                                          ),
+                                          Text(
+                                            doc['city'],
+                                            style: const TextStyle(
+                                                fontSize: textMedium,
+                                                fontWeight: FontWeight.w400),
+                                          ),
+                                        ],
+                                      ),
 
-                          ),
-                          keyboardType: TextInputType.emailAddress,
+                                      IconButton(
+                                        onPressed: () =>{ },
+                                        icon: SvgPicture.asset(
+                                          "assets/icons/right.svg",
+                                          color: PrimaryBlueOcean,
+                                          height: 25,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
 
-                        ),
+                              ;
 
-                      ),
+                            });}
 
-
-                    ],
-                  ),
+                    }
                 ),
 
               ],
@@ -434,7 +454,7 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
                         width: 5,
                       ),
                       Text(
-                        'Wink Mboma',
+                        doc['buyername'],
                         style: TextStyle(
                             fontSize: 15,
                             color: Colors.black,

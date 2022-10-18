@@ -1,3 +1,4 @@
+import 'package:chat2/AccountDetails/shop_info_view.dart';
 import 'package:chat2/HomeScreens/Search.dart';
 import 'package:chat2/ProductScreens/ProductDetails.dart';
 import 'package:chat2/ProductScreens/ShopDetails.dart';
@@ -35,30 +36,28 @@ class _SellersViewState extends State<SellersView> {
 
   }
 
+  String sellerid = "";
 
-  int _followersCount = 0;
-  int _followingCount = 0;
-  bool _isFollowing = false;
+  CollectionReference products = FirebaseFirestore.instance.collection('follower');
+  Future<void> deleteproducts(id){
 
 
-  getFollowersCount(shopid) async {
-    int followersCount =
-    await DatabaseServices.followersNum(shopid);
-    if (mounted) {
-      setState(() {
-        _followersCount = followersCount;
-      });
-    }
+    return FirebaseFirestore.instance.collection('follower')
+        .doc(id)
+        .delete()
+        .then((value) =>
+        print(
+            'Unfollowing user'
+        ))
+        .catchError((error)=>
+        print(
+            'Failed : $error'
+        ));
+
   }
-  getFollowingCount(number) async {
-    int followingCount =
-    await DatabaseServices.followingNum(number);
-    if (mounted) {
-      setState(() {
-        _followingCount = followingCount;
-      });
-    }
-  }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -123,63 +122,7 @@ class _SellersViewState extends State<SellersView> {
                         ),
                       ),),
 
-                   /* GestureDetector(
-                      onTap: (){
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>Search()));
-                      },
-                      child: Container(
-                        width: 390,
-                        height: 40,
-                        decoration: BoxDecoration(color:Colors.white,borderRadius: BorderRadius.circular(20)),
 
-                        child: Center(
-                          child: Container(
-                            margin: const EdgeInsets.only(left: 33),
-                            child: TextField(
-                              style: TextStyle(
-
-                                fontSize: 12,
-                                fontFamily: 'Quicksand',
-                                fontWeight: FontWeight.w200,
-                              ),
-                              decoration: InputDecoration(
-
-                                hintText: 'What are you looking for?',
-                                hintStyle:
-                                const TextStyle(color: SecondaryDarkGrey, fontSize: 18),
-                                border: InputBorder.none,
-                                suffixIcon: Container(
-                                  margin: const EdgeInsets.all(2),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xff17259C),
-                                    borderRadius: BorderRadius.circular(40),
-                                  ),
-                                  child: IconButton(
-                                    icon: const Icon(
-                                      Icons.search,
-                                      color: Colors.white,
-                                    ),
-                                    onPressed: (){
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>Search()));
-                                    },
-                                  ),
-                                ),
-
-                              ),
-
-
-                            ),
-                          ),
-                        ),
-
-                      ),
-                    ),*/
 
                   ],
                 ),
@@ -223,6 +166,8 @@ class _SellersViewState extends State<SellersView> {
         scrollDirection: Axis.vertical,
     itemBuilder: (context, index) {
       DocumentSnapshot doc = snapshot.data!.docs[index];
+
+      sellerid = doc['Uid'];
       return
 
         Container(
@@ -275,14 +220,31 @@ class _SellersViewState extends State<SellersView> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             const SizedBox(height: 10),
-                            Text(
-                             doc['items'].toString(),
-                              style: const TextStyle(
-                                fontSize: textMedium,
-                                color: SecondaryDarkGrey,
-                                fontWeight: FontWeight.w700,
-                              ),
+/// counting items::::::
+                            StreamBuilder<QuerySnapshot>(
+                              stream: FirebaseFirestore.instance
+                                  .collection('products')
+                                  .where('sellerId',isEqualTo: sellerid )
+                                  .snapshots(),
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData) {
+                                  return CircularProgressIndicator();
+                                } else {
+                                  return
+                                    Text(
+                                      snapshot.data!.docs.length.toString().toUpperCase(),
+                                      style: const TextStyle(
+                                        fontSize: textMedium,
+                                        color: SecondaryDarkGrey,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    );
+                                }
+                              },
                             ),
+
+
+
                             const SizedBox(height: 5),
                             const Text(
                               "Items",
@@ -346,14 +308,33 @@ class _SellersViewState extends State<SellersView> {
                       Column(
                           children: [
                             const SizedBox(height: 10),
-                            Text(
-                              " ${_followersCount}",
-                              style: const TextStyle(
-                                fontSize: textMedium,
-                                color: SecondaryDarkGrey,
-                                fontWeight: FontWeight.w700,
-                              ),
+
+///counting total followers
+                            StreamBuilder<QuerySnapshot>(
+                              stream: FirebaseFirestore.instance
+                                  .collection('follower')
+                                  .where('sellerId',isEqualTo: sellerid )
+                                  .snapshots(),
+                              builder: (context, snapshot) {
+
+                                  return
+                                    Text(
+                                      snapshot.data!.docs.length.toString().toUpperCase(),
+                                      style: const TextStyle(
+                                        fontSize: textMedium,
+                                        color: SecondaryDarkGrey,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    );
+
+
+                              },
                             ),
+
+
+
+
+
                             const SizedBox(height: 5),
                             const Text(
                               "Followers",
@@ -364,54 +345,194 @@ class _SellersViewState extends State<SellersView> {
                             ),
                             const SizedBox(height: 10),
 
-                            _isFollowing ?
-                            SizedBox(
-                              height: 35,
-                              width: 100,
-                              child: TextButton(
-                                onPressed: ()
-                                {
+                           GestureDetector(
+                              onTap: (){
+                                DocumentReference refe =  FirebaseFirestore.instance.collection('follower').doc();
 
-                                //  unFollowUser( (doc['Uid'] ));
+                                Map <String, dynamic> data = {
 
-                                },
-                                child: const Text(
-                                  'UnFollow',
+                                  'follwid' : refe.id,
+                                  'Uid' : FirebaseAuth.instance.currentUser!.uid,
+                                  'Fullname' : doc['Fullname'],
+                                  'AboutShop':doc['aboutshop'],
+                                  'Phonenumber': doc['Phonenumber'],
+                                  'DateTime' : DateTime.now(),
+                                  'location' : doc['ShopLocation'],
+                                  'sellerId' : doc['Uid'],
+                                  'shopName' : doc['ShopName'],
+                                  'userImage' :doc['userImage'],
+                                  'status': "following",
+                                };
+                                refe.set(data).then((value) {
+                                  Navigator.pop(context);
+                                  Fluttertoast.showToast(
+                                    msg:'Following Seller',
+                                  );
+                                });
+
+                                Navigator.pop(context);
+                              },
+                              child: Container(
+                                width: 100,
+                                height: 35,
+                                padding:
+                                EdgeInsets.symmetric(horizontal: 10),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5),
+                                  color:
+                                      PrimaryBlueOcean,
+
                                 ),
-                                style: TextButton.styleFrom(
-                                    primary: Colors.white,
-                                    alignment: Alignment.center,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(5)),
-                                    backgroundColor: Colors.redAccent,
-                                    textStyle: const TextStyle(
-                                      fontSize: 14,
-                                    )),
-                              ),
-                            ):
-                            SizedBox(
-                              height: 35,
-                              width: 100,
-                              child: TextButton(
-                                onPressed: ()
-                                {
-                                 // followUser( doc['Uid'] );
-
-                                },
-                                child: const Text(
-                                  'Follow',
+                                child: Center(
+                                  child: Text(
+                                     'Follow ',
+                                    style: TextStyle(
+                                      fontSize: 17,
+                                      color:
+                                           Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ),
-                                style: TextButton.styleFrom(
-                                    primary: Colors.white,
-                                    alignment: Alignment.center,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(5)),
-                                    backgroundColor: PrimaryBlueOcean,
-                                    textStyle: const TextStyle(
-                                      fontSize: 14,
-                                    )),
                               ),
-                            )
+                            ),
+
+                            /*GestureDetector(
+                              onTap: (){},
+                              child: Container(
+                                width: 100,
+                                height: 35,
+                                padding:
+                                EdgeInsets.symmetric(horizontal: 10),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5),
+                                  color:
+                                  Colors.red,
+
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    'UnFollow',
+                                    style: TextStyle(
+                                      fontSize: 17,
+                                      color:
+                                      Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),*/
+
+
+
+
+
+
+
+
+
+               /*     StreamBuilder<QuerySnapshot>(
+                              stream: FirebaseFirestore.instance
+          .collection('follower')
+
+                              .where('Uid', isEqualTo: currentuser)
+          .snapshots(),
+                              builder:  (BuildContext context, AsyncSnapshot<QuerySnapshot>snapshot) {
+
+                                if (snapshot.hasData) {
+                                  return
+
+                                    Container(
+                                      height: 35,
+                                      width: 100,
+                                      child: TextButton(
+                                        onPressed: ()
+                                        {
+
+                                          DocumentReference refe =  FirebaseFirestore.instance.collection('follower').doc();
+
+                                          Map <String, dynamic> data = {
+
+                                            'follwid' : refe.id,
+                                            'Uid' : currentuser,
+                                            'Fullname' : doc['Fullname'],
+                                            'AboutShop':doc['aboutshop'],
+                                            'Phonenumber': doc['Phonenumber'],
+                                            'DateTime' : DateTime.now(),
+                                            'location' : doc['ShopLocation'],
+                                            'sellerId' : doc['Uid'],
+                                            'shopName' : doc['ShopName'],
+                                            'userImage' :doc['userImage'],
+                                            'status': "following",
+                                          };
+                                          refe.set(data).then((value) {
+                                            Navigator.pop(context);
+                                            Fluttertoast.showToast(
+                                              msg:'Successfully posted',
+                                            );
+                                          });
+
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text(
+                                          'Follow',
+                                        ),
+                                        style: TextButton.styleFrom(
+                                            primary: Colors.white,
+                                            alignment: Alignment.center,
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(5)),
+                                            backgroundColor: PrimaryBlueOcean,
+                                            textStyle: const TextStyle(
+                                              fontSize: 14,
+                                            )),
+                                      ),
+                                    );
+
+
+
+                                }
+                                    return
+
+
+                                      Container(
+                                        height: 35,
+                                        width: 100,
+                                        child: TextButton(
+                                          onPressed: () {
+                                            deleteproducts(doc['follwid']);
+                                          },
+                                          child: const Text(
+                                            'UnFollow',
+                                          ),
+                                          style: TextButton.styleFrom(
+                                              primary: Colors.white,
+                                              alignment: Alignment.center,
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius
+                                                      .circular(5)),
+                                              backgroundColor: Colors.red,
+                                              textStyle: const TextStyle(
+                                                fontSize: 14,
+                                              )),
+                                        ),
+                                      );
+
+
+
+
+
+                                ///PhoneAuthPage();
+                              },
+                            ),*/
+///following user
+
+
+/// unfollow user
+
+
+
                           ]),
                       Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -536,89 +657,4 @@ class _SellersViewState extends State<SellersView> {
   }
 }
 
-class DatabaseServices {
-  static Future<int> followersNum(String userId) async {
-    QuerySnapshot followersSnapshot =
-    await FirebaseFirestore.instance.collection('followers').doc(userId).collection('Followers').get();
-    return followersSnapshot.docs.length;
-  }
-
-  static Future<int> followingNum(String userId) async {
-    QuerySnapshot followingSnapshot =
-    await  FirebaseFirestore.instance.collection('following').doc(userId).collection('Following').get();
-    return followingSnapshot.docs.length;
-  }
-
-
-
-
-  static void followUser(String currentUserId, String visitedUserId) {
-    FirebaseFirestore.instance.collection('following')
-        .doc(currentUserId)
-        .collection('Following')
-        .doc(visitedUserId)
-        .set({});
-    FirebaseFirestore.instance.collection('followers')
-        .doc(visitedUserId)
-        .collection('Followers')
-        .doc(currentUserId)
-        .set({});
-
-
-    Fluttertoast.showToast(
-        msg: "Following User",  // message
-        toastLength: Toast.LENGTH_SHORT, // length
-        gravity: ToastGravity.CENTER,    // location
-        timeInSecForIosWeb: 1               // duration
-    );
-
-  }
-
-  static void unFollowUser(String currentUserId, String visitedUserId) {
-    FirebaseFirestore.instance.collection('following')
-        .doc(currentUserId)
-        .collection('Following')
-        .doc(visitedUserId)
-        .get()
-        .then((doc) {
-      if (doc.exists) {
-        doc.reference.delete();
-      }
-    });
-
-    FirebaseFirestore.instance.collection('followers')
-        .doc(visitedUserId)
-        .collection('Followers')
-        .doc(currentUserId)
-        .get()
-        .then((doc) {
-      if (doc.exists) {
-        doc.reference.delete();
-      }
-    });
-
-
-
-    Fluttertoast.showToast(
-        msg: "Un follow User",  // message
-        toastLength: Toast.LENGTH_SHORT, // length
-        gravity: ToastGravity.CENTER,    // location
-        timeInSecForIosWeb: 1               // duration
-    );
-  }
-
-  static Future<bool> isFollowingUser(
-      String currentUserId, String visitedUserId) async {
-    DocumentSnapshot followingDoc = await
-    FirebaseFirestore.instance.collection('followers')
-        .doc(visitedUserId)
-        .collection('Followers')
-        .doc(currentUserId)
-        .get();
-    return followingDoc.exists;
-  }
-
-
-
-}
 

@@ -4,8 +4,8 @@ import 'package:chat2/data/models/address_model.dart';
 import 'package:chat2/helpers/constants.dart';
 
 class EditAddress extends StatefulWidget {
-  const EditAddress({Key? key, required this.address}) : super(key: key);
-  final Address address;
+  const EditAddress({Key? key, }) : super(key: key);
+
 
   @override
   State<EditAddress> createState() => _EditAddressState();
@@ -27,15 +27,7 @@ class _EditAddressState extends State<EditAddress> {
     "Mzuzu",
   ];
 
-  @override
-  void initState() {
-    super.initState();
-    _nameController = TextEditingController(text: widget.address.name);
-    _phoneController = TextEditingController(text: widget.address.phone);
-    _emailController = TextEditingController(text: widget.address.email);
-    _cityController = TextEditingController(text: widget.address.city);
-    _addressController = TextEditingController(text: widget.address.address);
-  }
+
 
   @override
   void dispose() {
@@ -47,7 +39,7 @@ class _EditAddressState extends State<EditAddress> {
     _addressController.dispose();
   }
 
-  Future<void> updateAddress(String name, String phone, String email,
+ /* Future<void> updateAddress(String name, String phone, String email,
       String city, String address) async {
     await _firebaseFirestore
         ?.collection('addresses')
@@ -61,7 +53,7 @@ class _EditAddressState extends State<EditAddress> {
       "userId": "TbRTDUMVlCV6FQgu67eK",
       "createdAt": Timestamp.now(),
     });
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -227,12 +219,12 @@ class _EditAddressState extends State<EditAddress> {
                             setState(() {
                               isLoading = true;
                             });
-                            updateAddress(
+                           /* updateAddress(
                                 _nameController.text,
                                 _phoneController.text,
                                 _emailController.text,
                                 _cityController.text,
-                                _addressController.text);
+                                _addressController.text);*/
                             _nameController.clear();
                             _phoneController.clear();
                             _emailController.clear();

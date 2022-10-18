@@ -207,7 +207,9 @@ class _PaymentRegisterState extends State<PaymentRegister> {
         ),
         backgroundColor: Colors.white,
         resizeToAvoidBottomInset: false,
-        body: Form(
+        body:
+
+        Form(
           key: _formKey,
           child: Container(
             child: Stack(
@@ -452,6 +454,7 @@ class _PaymentRegisterState extends State<PaymentRegister> {
               ],
             ),
           ),
-        ));
+        )
+    );
   }
 }

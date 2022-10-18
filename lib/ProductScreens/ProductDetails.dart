@@ -2,9 +2,19 @@ import 'dart:math';
 import 'package:chat2/AuthScreens/Register_as_view.dart';
 import 'package:chat2/AuthScreens/phone_auth_view.dart';
 import 'package:chat2/ChatScreen/ChatDetail.dart';
+import 'package:chat2/ChatScreen/SignIn2.dart';
+import 'package:chat2/ChatScreen/SignIn3.dart';
 import 'package:chat2/ProductScreens/OrderView.dart';
 import 'package:chat2/ProductScreens/ShopDetails.dart';
+import 'package:chat2/bloc/follows/follows_bloc.dart';
+import 'package:chat2/bloc/order/order_bloc.dart';
+import 'package:chat2/bloc/phone_auth/phone_auth_bloc.dart';
+import 'package:chat2/bloc/product/product_bloc.dart';
 import 'package:chat2/bottom_nav.dart';
+import 'package:chat2/data/models/log_model.dart';
+import 'package:chat2/data/models/seller_model.dart';
+import 'package:chat2/data/models/user_model.dart';
+import 'package:chat2/data/repository/repository.dart';
 import 'package:chat2/helpers/constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -13,10 +23,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:like_button/like_button.dart';
+
+const double buttonSize = 20.0;
 
 class ProductDetails extends StatefulWidget {
-  const ProductDetails({Key? key, required this.id}) : super(key: key);
-  final String? id;
+  ProductDetails({Key? key, required this.id}) : super(key: key);
+  String? id;
   @override
   State<ProductDetails> createState() => _ProductDetailsState();
 }
@@ -53,22 +66,6 @@ class _ProductDetailsState extends State<ProductDetails> {
     passwordVisible = true;
   }
 
-  getFollowersCount(shopid) async {
-    int followersCount =
-    await DatabaseServices.followersNum(shopid);
-    if (mounted) {
-      setState(() {
-        _followersCount = followersCount;
-      });
-    }
-  }
-
-  setupIsFollowing(currentid, id) async {
-    bool isFollowingThisUser = await DatabaseServices.isFollowingUser(currentid, id);
-    setState(() {
-      _isFollowing = isFollowingThisUser;
-    });
-  }
 
 
   bool loading =false;
@@ -79,289 +76,119 @@ class _ProductDetailsState extends State<ProductDetails> {
     return (_auth.currentUser)!.uid;
   }
 
+  final int CountLike = 0;
 
-  final TextEditingController email = TextEditingController();
-  final TextEditingController pasword = TextEditingController();
+  final int likeCount = 0;
+  final GlobalKey<LikeButtonState> _globalKey = GlobalKey<LikeButtonState>();
 
-  void validator (){
-    if (email.text.isEmpty && pasword.text.isEmpty ){
+  void initState3() {
+    super.initState();
+  }
+  final Repository repo = Repository();
+  final PhoneAuthBloc _authBloc = PhoneAuthBloc(
+    phoneAuthRepository: Repository(),
+  );
+  final OrderBloc _purchaseBloc = OrderBloc(orderRepository: Repository());
+  final ProductBloc _productsBloc = ProductBloc(productRepository: Repository());
+  final OrderBloc _orderBloc = OrderBloc(orderRepository: Repository());
+  final OrderBloc _allOrdersBloc = OrderBloc(orderRepository: Repository());
+  final FollowsBloc _allFollows = FollowsBloc(followsRepository: Repository());
+  List<Log> _shopVisits = [];
+  String _userId = "";
 
-      Fluttertoast.showToast(
-          msg:'Please Enter Email and Password'
-      );
-    }
-    else if(email.text.isEmpty){
-      Fluttertoast.showToast(
-          msg:'Please Enter Email '
-      );
-    }
-    else if(pasword.text.isEmpty){
-      Fluttertoast.showToast(
-          msg:'Please Enter Password'
-      );
-    }
-    else{
-      setState(() {
-        loading = true  ;
-      });
-      login();
+  String _userRole = "";
+
+  Seller? _sellerObject = null;
+  final DateFormat format = DateFormat('yyyy-MM-ddTHH:mm:ss');
+
+
+  Future<Null> getSharedPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? userRole = prefs.getString('Type');
+    if(userRole != null){
+      if(userRole.contains("Seller")){
+
+        Seller? logSeller = await repo.findSellerByPhoneNumber(prefs.getString('Phonenumber'));
+        _purchaseBloc.add(LoadPurchaseOrders(sellerId: logSeller!.id));
+        _productsBloc.add(LoadSellerProducts(sellerId: logSeller.id));
+        _orderBloc.add(LoadSellersOrders(sellerId: logSeller.id));
+        _allOrdersBloc.add(LoadAllSellersOrders(sellerId: logSeller.id));
+        _allFollows.add(LoadFollows(sellerId: logSeller.id));
+        List<Log> tempList = await repo.getShopVisits(logSeller.id);
+        DateTime now = DateTime.now();
+        setState(() {
+          _userId = logSeller.id;
+          _phone = prefs.getString('Phonenumber') ?? '';
+          _userRole = prefs.getString('Type') ?? '';
+          _sellerObject = logSeller;
+          _shopVisits = tempList.where((element) => format.parse(element.date).month == now.month).toList();
+        });
+      }
+      else {
+        Customer? logCustomer = await repo.findBuyerByPhoneNumber(prefs.getString('Phonenumber'));
+        _orderBloc.add(LoadBuyersOrders(buyerId: logCustomer!.id));
+        _purchaseBloc.add(LoadBuyerPurchases(buyerId: logCustomer.id));
+        setState(() {
+          _userId = logCustomer.id;
+          _phone = prefs.getString('Phonenumber') ?? '';
+          _userRole = prefs.getString('Type') ?? '';
+        });
+      }
     }
   }
-  void login(){
-    FirebaseAuth.instance.signInWithEmailAndPassword(email: email.text, password: pasword.text).then((UserCredential userCredetial){
 
-      //move to home screen
 
-      setState(() {
-        loading = false;
-      });
+  @override
+  void initState4() {
+    super.initState();
+    getSharedPrefs();
+  }
+
+  void _validate(String productid,  String image, String name, String price){
+    var dateformat = DateFormat('MMM d, yyyy');
+    String date = dateformat.format(DateTime.now()).toString();
+    DocumentReference ref =  FirebaseFirestore.instance.collection('starred').doc();
+    Map<String, dynamic> data ={
+
+
+
+
+      "Sid": ref.id,
+
+      'productid': productid,
+      'Date Ordered': date,
+      'Uid': FirebaseAuth.instance.currentUser?.uid,
+      'price': price,
+      'name': name,
+      'image': image,
+
+    };
+    ref.set(data).then((value) {
+      Navigator.pop(context);
       Fluttertoast.showToast(
-        msg:'Login Successfully ',
+        msg:'${name} has been Starred Successfully',
       );
-      HomeScreen();
-    }).catchError((error){
-      //show error
-
-      setState(() {
-        loading = false;
+      setState((){
+        _isloading = false;
       });
-      Fluttertoast.showToast(
-        msg:error.toString(),
-      );
-    });
+
+
+      Navigator.of(context).push(MaterialPageRoute(builder: (context){
+        return ProductDetails(
+          id: productid,
+
+        );
+      }));
+    }
+    );
 
   }
 
 
-  void HomeScreen(){
-
-    Navigator.pop(context);
-    /*Navigator.of(context).pushReplacement(
-
-      MaterialPageRoute(builder: (context)=>BottomNav()),
-    );*/
-  }
-  void SignInModal(context){
-    showModalBottomSheet(context: context, builder: (BuildContext bc){
-      return
-        Expanded(
-          child: Container(
-              height: MediaQuery.of(context).size.height *.40,
-    child: Column(
-    children: [
-
-      Center(
-
-          child: Padding(
-            padding:   const EdgeInsets.symmetric(horizontal: paddingHorizontal),
-            child:
-
-            Column(
-
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-SizedBox(height: 30,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-
-                     Text('Dont have an account', style: TextStyle(fontFamily: 'DMsans',fontSize: 15,fontWeight: FontWeight.bold, color: Colors.grey),),
-
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(context,
-                                MaterialPageRoute(
-                                    builder: (context) => RegisterAsView()));
-                          },
-
-                          child: Text('Sign Up', style: TextStyle(fontFamily: 'DMsans',
-                              color: PrimaryBlueOcean,fontSize: 15, fontWeight: FontWeight.bold),)),
-                    ),
-                  ],
-                ),
-
-
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        "Enter Email",
-                        style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: textMedium),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-
-                      Container(
-                        height: 45,
-                        padding: const EdgeInsets.all(5),
-
-                        decoration: BoxDecoration(
-                          color: Color(0xfff2f2f2),
-                          border: Border.all(
-                            color: Color(0xfff2f2f2),
-                            width: 1,
-                          ),
-
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: TextFormField(
-
-
-                          controller: email,
-                          textInputAction: TextInputAction.next,
-                          cursorColor: const Color(0xFFffffff),
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            filled: true,
-
-                            fillColor: Color(0xfff2f2f2),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        "Enter Password",
-                        style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: textMedium),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-
-
-                      Container(
-                        height: 45,
-                        padding: const EdgeInsets.all(5),
-
-
-                        decoration: BoxDecoration(
-                          color: Color(0xfff2f2f2),
-                          border: Border.all(
-                            color: Color(0xfff2f2f2),
-                            width: 1,
-                          ),
-
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: TextFormField(
-
-                          controller: pasword,
-                          obscureText: passwordVisible,
-                          textInputAction: TextInputAction.done,
-                          cursorColor: const Color(0xFFffffff),
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            filled: true,
-                            suffixIcon: IconButton(
-                              iconSize: 15,
-                              icon: Icon(
-
-                                passwordVisible
-                                    ? Icons.visibility_outlined
-                                    : Icons.visibility_off_outlined,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  passwordVisible = !passwordVisible;
-                                });
-                              },
-                            ),
-                            fillColor: Color(0xfff2f2f2),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
 
 
 
-
-                SizedBox(height: 10,),
-                GestureDetector(
-                  onTap: () {
-                    validator();
-                  },
-                  child:
-
-
-
-                  Container(
-                    width: MediaQuery.of(context).size.width,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    alignment: Alignment.center,
-                    decoration: const BoxDecoration(
-                      color: PrimaryBlueOcean,
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                    ),
-                    child:
-
-
-                    loading ?
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Text(
-                          "Processing...",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: textMedium,
-                              fontWeight: FontWeight.w700),
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        SizedBox(
-                          height: 25,
-                          width: 25,
-                          child: CircularProgressIndicator(
-                              strokeWidth: 1, color: Colors.white),
-                        )
-                      ],
-                    ) :
-
-                    Text(
-                      'Sign In',
-                      style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w500),
-                    ),
-                  ),
-                ),
-
-
-
-
-
-              ],
-            ),
-          ),
-      ),
-   
-
-    ])),
-        );});}
-
+  bool _isloading = false;
   @override
   Widget build(BuildContext context) {
     return  FutureBuilder<DocumentSnapshot <Map<String, dynamic>>>(
@@ -440,25 +267,46 @@ SizedBox(height: 30,),
                           Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Row(
-                                    children: [
-                                      InkWell(
-                                        onTap:  () async {
 
-                                        },
-                                        child: SvgPicture.asset(
-                                          "assets/icons/heart.svg",
-                                          color: SecondaryDarkGrey,
-                                          height: 15,
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        width: 10,
-                                      ),
-                                      Text(
-                                          '2',
-                                      ),
-                                    ]),
+
+                                LikeButton(
+                                  size: buttonSize,
+                                  circleColor: const CircleColor(
+                                      start: Color(0xff00ddff), end: Color(0xff0099cc)),
+                                  bubblesColor: const BubblesColor(
+                                    dotPrimaryColor: Colors.red,
+                                    dotSecondaryColor: Colors.red,
+                                  ),
+                                  likeBuilder: (bool isLiked) {
+                                    return Icon(
+                                      Icons.favorite,
+                                      color: isLiked ? Colors.red : Colors.grey,
+                                      size: buttonSize,
+                                    );
+                                  },
+                                  likeCount: 0,
+                                  countBuilder: (int? count, bool isLiked, String text) {
+                                    final ColorSwatch<int> color =
+                                    isLiked ? Colors.red : Colors.grey;
+                                    Widget result;
+                                    if (count == 0) {
+                                      result = Text(
+                                        '0',
+                                        style: TextStyle(color: color),
+                                      );
+                                    } else
+                                      result = Text(
+                                        text,
+                                        style: TextStyle(color: color),
+                                      );
+                                    return result;
+                                  },
+                                  likeCountPadding: const EdgeInsets.only(left: 15.0),
+                                ),
+
+
+
+
                                 Text(
                                   '${productStatus}',
                                   style:
@@ -826,7 +674,8 @@ SizedBox(height: 30,),
                                         scrollDirection: Axis.horizontal,
     itemBuilder: (context, index) {
     DocumentSnapshot docc = snapshot.data!.docs[index];
-    return GestureDetector(
+    return
+      GestureDetector(
 
       onTap: ()async{
         Navigator.push(
@@ -840,7 +689,7 @@ SizedBox(height: 30,),
           children:[
             Container(
               decoration: BoxDecoration(
-                color: Colors.black12,
+                color: Colors.black,
                 borderRadius: BorderRadius.circular(7),
               ),
               margin: EdgeInsets.all(10.0),
@@ -994,102 +843,250 @@ SizedBox(height: 30,),
                   children: [
 
 
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        InkWell(
+                            onTap: (){
 
-
-                    StreamBuilder(
-                      stream: FirebaseAuth.instance.authStateChanges(),
-                      builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
-                        if (snapshot.hasData) {
-          return  StreamBuilder<QuerySnapshot>  (
-              stream: FirebaseFirestore.instance
-                  .collection('users').
-
-              where('Uid', isEqualTo: sellerId)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                return ListView.builder(
-                    itemCount: snapshot.data!.docs.length,
-
-                    shrinkWrap: true,
-                    physics: ClampingScrollPhysics(),
-                    scrollDirection: Axis.horizontal,
-                    itemBuilder: (context, index) {
-                      DocumentSnapshot doc = snapshot.data!.docs[index];
-
-                      return
-
-                        Row(
-                          children: [
-                            InkWell(
-                                onTap: (){
-
-
-                                  Navigator.push(context, MaterialPageRoute(
-                                      builder: (_) => ChatDetail(
-
-                                        friendName: doc['Fullname'],
-                                        friendUid: doc['Uid'],
-                                        friendImage: doc['userImage'],
-
-
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => BottomNav(
                                       )));
 
 
 
-                                },
-                                child:
-                                ItemNavWidget(
-                                  icon: "assets/icons/chat.svg",
-                                  label: "Message",
-                                )
 
-                            ),
-                            const SizedBox(
-                              width: 40,
-                            ),
-                          ],
-                        );
-                    }
-
-
-                );
-              });
-        }
-        return
-
-          Row(
+                            },
+                            child:
+            Column(
             children: [
-              InkWell(
-                  onTap: (){
-
-
-
-                    SignInModal(context);
-
-                    Fluttertoast.showToast(
-                        msg: "Login First",  // message
-                        toastLength: Toast.LENGTH_SHORT, // length
-                        gravity: ToastGravity.CENTER,    // location
-                        timeInSecForIosWeb: 1               // duration
-                    );
-
-                  },
-                  child:
-                  ItemNavWidget(
-                    icon: "assets/icons/chat.svg",
-                    label: "Message",
-                  )
-
-              ),
-              const SizedBox(
-                width: 40,
-              ),
+            SvgPicture.asset(
+            "assets/icons/home.svg",
+            color: Colors.grey,
+            height: 20,
+            ),
+            Text(
+            "Home",
+            style: const TextStyle(fontSize: 12),
+            )
             ],
-          );
+            ),
 
-  },
-  ),
 
+                            /*ItemNavWidget(
+                              icon: "assets/icons/home.svg",
+                              label: "Home",
+                            )*/
+
+                        ),
+
+                        SizedBox(width: 20,),
+
+
+                        StreamBuilder(
+                          stream: FirebaseAuth.instance.authStateChanges(),
+                          builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
+                            if (snapshot.hasData) {
+                              return  StreamBuilder<QuerySnapshot>  (
+                                  stream: FirebaseFirestore.instance
+                                      .collection('products').
+                                  where('productId', isEqualTo: productId).
+                                  where('sellerId', isEqualTo: sellerId)
+                                      .snapshots(),
+                                  builder: (context, snapshot) {
+                                    return ListView.builder(
+                                        itemCount: snapshot.data!.docs.length,
+
+                                        shrinkWrap: true,
+                                        physics: ClampingScrollPhysics(),
+                                        scrollDirection: Axis.horizontal,
+                                        itemBuilder: (context, index) {
+                                          DocumentSnapshot dalo = snapshot.data!.docs[index];
+
+                                          var productId  = dalo!['productId'];
+                                          var price  = dalo!['price'];
+                                          var imageUrl  = dalo!['imageUrl'];
+                                          var name  = dalo!['name'];
+
+
+                                          return
+
+                                            Row(
+                                              children: [
+                                                InkWell(
+                                                    onTap: (){
+
+
+                                                      _validate(productId, imageUrl, name, price );
+
+
+
+                                                    },
+                                                    child:
+                                                    ItemNavWidget(
+                                                      icon: "assets/icons/star.svg",
+                                                      label: "Star",
+                                                    )
+
+                                                ),
+                                                const SizedBox(
+                                                  width: 40,
+                                                ),
+                                              ],
+                                            );
+                                        }
+
+
+                                    );
+                                  });
+                            }
+                            return
+
+                              Row(
+                                children: [
+                                  InkWell(
+                                      onTap: (){
+
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) => SignInt(
+                                                )));
+
+
+
+
+                                        Fluttertoast.showToast(
+                                            msg: "Login First",  // message
+                                            toastLength: Toast.LENGTH_SHORT, // length
+                                            gravity: ToastGravity.CENTER,    // location
+                                            timeInSecForIosWeb: 1               // duration
+                                        );
+
+                                      },
+                                      child:
+                                      ItemNavWidget(
+                                        icon: "assets/icons/star.svg",
+                                        label: "Star",
+                                      )
+
+                                  ),
+                                  const SizedBox(
+                                    width: 40,
+                                  ),
+                                ],
+                              );
+
+                          },
+                        ),
+
+
+                        StreamBuilder(
+                          stream: FirebaseAuth.instance.authStateChanges(),
+                          builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
+                            if (snapshot.hasData) {
+                              return  StreamBuilder<QuerySnapshot>  (
+                                  stream: FirebaseFirestore.instance
+                                      .collection('users').
+                                  where('Uid', isEqualTo: sellerId)
+                                      .snapshots(),
+                                  builder: (context, snapshot) {
+                                    return ListView.builder(
+                                        itemCount: snapshot.data!.docs.length,
+
+                                        shrinkWrap: true,
+                                        physics: ClampingScrollPhysics(),
+                                        scrollDirection: Axis.horizontal,
+                                        itemBuilder: (context, index) {
+                                          DocumentSnapshot doc = snapshot.data!.docs[index];
+
+                                          return
+
+                                            Row(
+                                              children: [
+                                                InkWell(
+                                                    onTap: (){
+
+
+                                                      Navigator.push(context, MaterialPageRoute(
+                                                          builder: (_) => ChatDetail(
+
+                                                            friendName: doc['Fullname'],
+                                                            friendUid: doc['Uid'],
+                                                            friendImage: doc['userImage'],
+
+
+                                                          )));
+
+
+
+                                                    },
+                                                    child:
+                                                    ItemNavWidget(
+                                                      icon: "assets/icons/chat.svg",
+                                                      label: "Message",
+                                                    )
+
+                                                ),
+                                                const SizedBox(
+                                                  width: 40,
+                                                ),
+                                              ],
+                                            );
+                                        }
+
+
+                                    );
+                                  });
+                            }
+                            return
+
+                              Row(
+                                children: [
+                                  InkWell(
+                                      onTap: (){
+
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) => SignInt(
+                                                )));
+
+
+
+
+                                        Fluttertoast.showToast(
+                                            msg: "Login First",  // message
+                                            toastLength: Toast.LENGTH_SHORT, // length
+                                            gravity: ToastGravity.CENTER,    // location
+                                            timeInSecForIosWeb: 1               // duration
+                                        );
+
+                                      },
+                                      child:
+                                      ItemNavWidget(
+                                        icon: "assets/icons/chat.svg",
+                                        label: "Message",
+                                      )
+
+                                  ),
+                                  const SizedBox(
+                                    width: 40,
+                                  ),
+                                ],
+                              );
+
+                          },
+                        ),
+
+                      ],
+                    )
+
+
+                   ,
                     StreamBuilder(
                       stream: FirebaseAuth.instance.authStateChanges(),
                       builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
@@ -1113,7 +1110,9 @@ SizedBox(height: 30,),
 
         return
           InkWell(
-            onTap: () { Navigator.push(
+            onTap: () {
+
+              Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (context) => OrderView(  id: docc3['productId'],
@@ -1143,10 +1142,16 @@ SizedBox(height: 30,),
 
         }
         return
+
+
           InkWell(
             onTap: () {
 
-              SignInModal(context);
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => SignInt(
+                      )));
 
               Fluttertoast.showToast(
                   msg: "Login First",  // message
@@ -1171,9 +1176,6 @@ SizedBox(height: 30,),
               ),
             ),
           );
-
-
-                        ///PhoneAuthPage();
   },
   ),
 
@@ -1208,89 +1210,4 @@ class ItemNavWidget extends StatelessWidget {
       ],
     );
   }
-}
-class DatabaseServices {
-  static Future<int> followersNum(String userId) async {
-    QuerySnapshot followersSnapshot =
-    await FirebaseFirestore.instance.collection('followers').doc(userId).collection('Followers').get();
-    return followersSnapshot.docs.length;
-  }
-
-  static Future<int> followingNum(String userId) async {
-    QuerySnapshot followingSnapshot =
-    await  FirebaseFirestore.instance.collection('following').doc(userId).collection('Following').get();
-    return followingSnapshot.docs.length;
-  }
-
-
-
-
-  static void followUser(String currentUserId, String visitedUserId) {
-    FirebaseFirestore.instance.collection('following')
-        .doc(currentUserId)
-        .collection('Following')
-        .doc(visitedUserId)
-        .set({});
-    FirebaseFirestore.instance.collection('followers')
-        .doc(visitedUserId)
-        .collection('Followers')
-        .doc(currentUserId)
-        .set({});
-
-
-    Fluttertoast.showToast(
-        msg: "Following User",  // message
-        toastLength: Toast.LENGTH_SHORT, // length
-        gravity: ToastGravity.CENTER,    // location
-        timeInSecForIosWeb: 1               // duration
-    );
-
-  }
-
-  static void unFollowUser(String currentUserId, String visitedUserId) {
-    FirebaseFirestore.instance.collection('following')
-        .doc(currentUserId)
-        .collection('Following')
-        .doc(visitedUserId)
-        .get()
-        .then((doc) {
-      if (doc.exists) {
-        doc.reference.delete();
-      }
-    });
-
-    FirebaseFirestore.instance.collection('followers')
-        .doc(visitedUserId)
-        .collection('Followers')
-        .doc(currentUserId)
-        .get()
-        .then((doc) {
-      if (doc.exists) {
-        doc.reference.delete();
-      }
-    });
-
-
-
-    Fluttertoast.showToast(
-        msg: "Un follow User",  // message
-        toastLength: Toast.LENGTH_SHORT, // length
-        gravity: ToastGravity.CENTER,    // location
-        timeInSecForIosWeb: 1               // duration
-    );
-  }
-
-  static Future<bool> isFollowingUser(
-      String currentUserId, String visitedUserId) async {
-    DocumentSnapshot followingDoc = await
-    FirebaseFirestore.instance.collection('followers')
-        .doc(visitedUserId)
-        .collection('Followers')
-        .doc(currentUserId)
-        .get();
-    return followingDoc.exists;
-  }
-
-
-
 }

@@ -57,9 +57,7 @@ class _BottomSectionState extends State<BottomSection>
       new Tab(child: Text('About  Developers', style: TextStyle(color: Color(0xff17259C)),),),
     ];
     _pages = [
-      Gallery(
-
-      ),
+      Gallery(),
 
       About(),
     ];

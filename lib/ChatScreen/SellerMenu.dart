@@ -51,7 +51,7 @@ class _SellerMenuState extends State<SellerMenu> {
               StreamBuilder<QuerySnapshot>  (
                   stream: FirebaseFirestore.instance
                       .collection('users').
-                  where('Uid', isEqualTo: currentuser)
+                  where('Uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
 
                       .snapshots(),
                   builder: (context, snapshot) {
@@ -187,7 +187,7 @@ class _SellerMenuState extends State<SellerMenu> {
                                       StreamBuilder<QuerySnapshot>(
                                         stream: FirebaseFirestore.instance
                                             .collection('orders')
-                                            .where('sellerId',isEqualTo: currentuser )
+                                            .where('sellerId',isEqualTo: FirebaseAuth.instance.currentUser!.uid )
                                             .snapshots(),
                                         builder: (context, snapshot) {
                                           if (!snapshot.hasData) {
@@ -260,7 +260,7 @@ class _SellerMenuState extends State<SellerMenu> {
                                       StreamBuilder<QuerySnapshot>(
                                         stream: FirebaseFirestore.instance
                                             .collection('orders')
-                                            .where('sellerId',isEqualTo: currentuser )
+                                            .where('sellerId',isEqualTo: FirebaseAuth.instance.currentUser!.uid)
 
                                             .snapshots(),
                                         builder: (context, snapshot) {
@@ -349,7 +349,7 @@ class _SellerMenuState extends State<SellerMenu> {
                                       StreamBuilder<QuerySnapshot>(
                                         stream: FirebaseFirestore.instance
                                             .collection('products')
-                                            .where('sellerId',isEqualTo: currentuser )
+                                            .where('sellerId',isEqualTo: FirebaseAuth.instance.currentUser!.uid )
                                             .snapshots(),
                                         builder: (context, snapshot) {
                                           if (!snapshot.hasData) {
@@ -701,7 +701,7 @@ class _SellerMenuState extends State<SellerMenu> {
                           StreamBuilder<QuerySnapshot>  (
                               stream: FirebaseFirestore.instance
                                   .collection('users').
-                              where('Uid', isEqualTo: currentuser)
+                              where('Uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
 
                                   .snapshots(),
                               builder: (context, snapshot) {
@@ -890,7 +890,7 @@ class _SellerMenuState extends State<SellerMenu> {
                           StreamBuilder<QuerySnapshot>  (
                               stream: FirebaseFirestore.instance
                                   .collection('users').
-                              where('Uid', isEqualTo: currentuser)
+                              where('Uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
 
                                   .snapshots(),
                               builder: (context, snapshot) {

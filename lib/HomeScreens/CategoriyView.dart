@@ -1,4 +1,5 @@
 import 'package:chat2/HomeScreens/Search.dart';
+import 'package:chat2/HomeScreens/product_view.dart';
 import 'package:chat2/ProductScreens/ProductDetails.dart';
 import 'package:chat2/helpers/constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -91,12 +92,12 @@ class _CategoriyViewState extends State<CategoriyView> {
               children: [
                 SvgPicture.network(
                   "https://www.svgrepo.com/show/202035/menu.svg",
-                  color: iconBlueDark,
+                  color: Colors.grey,
 
                   height: 23.5,
                   // By default our  icon color is white
                 ),
-                const Text("All", style: TextStyle(fontSize: textSmall))
+                const Text("Popular", style: TextStyle(fontSize: textSmall))
               ],
             ),
             selectedIcon: Column(
@@ -108,20 +109,24 @@ class _CategoriyViewState extends State<CategoriyView> {
                   height: 23.5,
                   // By default our  icon color is white
                 ),
-                const Text("All", style: TextStyle(fontSize: textSmall, color: iconBlueDark))
+                const Text("Popular", style: TextStyle(fontSize: textSmall, color: iconBlueDark)),
+
+
               ],
             ),
             label: Text(""),
           ),
+
           NavigationRailDestination(
               icon: Column(
                 children: [
                   SvgPicture.asset(
                     "assets/icons/device.svg",
-                    color: iconBlueDark,
+                    color: Colors.grey,
+
                     // By default our  icon color is white
                   ),
-                  Text('Electronics', style: const TextStyle(fontSize: textSmall, color: iconBlueDark,))
+                  Text('Electronics', style: const TextStyle(fontSize: textSmall,))
                 ],
               ),
               selectedIcon: Column(
@@ -134,33 +139,7 @@ class _CategoriyViewState extends State<CategoriyView> {
                   ),
                   Text('Electronics', style: const TextStyle(fontSize: textSmall, color: iconBlueDark)),
                   SizedBox(height: 5,),
-                  SvgPicture.network(
-                    "https://www.svgrepo.com/show/196892/phone-call-smartphone.svg",
-                    color: iconBlueDark,
-                    height: 20,
 
-                    // By default our  icon color is white
-                  ),
-                  Text('Phone', style: const TextStyle(fontSize: textSmall, color: iconBlueDark)),
-                  SizedBox(height: 5,),
-                  SvgPicture.network(
-                   "https://www.svgrepo.com/show/12668/computer.svg",
-                    color: iconBlueDark,
-
-                    height: 20,
-                    // By default our  icon color is white
-                  ),
-                  Text('Computers', style: const TextStyle(fontSize: textSmall, color: iconBlueDark)),
-                  SizedBox(height: 5,),
-                  SvgPicture.network(
-                    "https://www.svgrepo.com/show/425380/watch.svg",
-                    color: iconBlueDark,
-
-                    height: 20,
-                    // By default our  icon color is white
-                  ),
-                  Text('Watches', style: const TextStyle(fontSize: textSmall, color: iconBlueDark)),
-                  SizedBox(height: 5,),
                 ],
               ),
               label: Text(""),
@@ -170,10 +149,11 @@ class _CategoriyViewState extends State<CategoriyView> {
                 children: [
                   SvgPicture.asset(
                     "assets/icons/furniture.svg",
-                    color: iconBlueDark,
+                    color: Colors.grey,
+
                     // By default our  icon color is white
                   ),
-                  Text('Furniture', style: const TextStyle(fontSize: textSmall, color: iconBlueDark,))
+                  Text('Furniture', style: const TextStyle(fontSize: textSmall, ))
                 ],
               ),
               selectedIcon: Column(
@@ -185,27 +165,7 @@ class _CategoriyViewState extends State<CategoriyView> {
                     // By default our  icon color is white
                   ),
                   Text('Furniture', style: const TextStyle(fontSize: textSmall, color: iconBlueDark)),
-                  SvgPicture.network(
-                    "https://www.svgrepo.com/show/53180/sofa.svg",
-                    color: iconBlueDark,
-                    height: 20,
-                    // By default our  icon color is white
-                  ),
-                  Text('Sofa', style: const TextStyle(fontSize: textSmall, color: iconBlueDark)),
-                  SvgPicture.network(
-                    "https://www.svgrepo.com/show/112922/dinning-table.svg",
-                    color: iconBlueDark,
-                    height: 20,
-                    // By default our  icon color is white
-                  ),
-                  Text('Dinning Table', style: const TextStyle(fontSize: textSmall, color: iconBlueDark)),
-                  SvgPicture.network(
-                    "https://www.svgrepo.com/show/14685/bed.svg",
-                    color: iconBlueDark,
-height: 20,
-                    // By default our  icon color is white
-                  ),
-                  Text('Beds', style: const TextStyle(fontSize: textSmall, color: iconBlueDark))
+
                 ],
               ),
               label: Text(""),
@@ -215,7 +175,7 @@ height: 20,
               children: [
                 SvgPicture.asset(
                   "assets/icons/fashion.svg",
-                  color: iconBlueDark,
+                  color: Colors.grey,
                   // By default our  icon color is white
                 ),
                 Text('Fashion', style: const TextStyle(fontSize: textSmall))
@@ -231,50 +191,21 @@ height: 20,
                 ),
                 Text('Fashion', style: const TextStyle(fontSize: textSmall, color: iconBlueDark)),
 
-                SvgPicture.network(
-                  "https://www.svgrepo.com/show/119102/men-clothes.svg",
-                  color: iconBlueDark,
-height: 20,
-                  // By default our  icon color is white
-                ),
-                Text('Men Cloths', style: const TextStyle(fontSize: textSmall, color: iconBlueDark)),
-
-                SvgPicture.network(
-                  "https://www.svgrepo.com/show/119102/men-clothes.svg",
-                  color: iconBlueDark,
-height: 20,
-                  // By default our  icon color is white
-                ),
-                Text('Women Clothes', style: const TextStyle(fontSize: textSmall, color: iconBlueDark)),
-
-                SvgPicture.network(
-                  "https://www.svgrepo.com/show/136183/shoes.svg",
-                  color: iconBlueDark,
-height: 20,
-                  // By default our  icon color is white
-                ),
-                Text('Shoes', style: const TextStyle(fontSize: textSmall, color: iconBlueDark)),
-
-                SvgPicture.network(
-                  "https://www.svgrepo.com/show/55164/jacket.svg",
-                  color: iconBlueDark,
-height: 20,
-                  // By default our  icon color is white
-                ),
-                Text('Suits', style: const TextStyle(fontSize: textSmall, color: iconBlueDark)),
               ],
             ),
             label: Text(""),
           ),
+
+
           NavigationRailDestination(
             icon: Column(
               children: [
                 SvgPicture.asset(
                   "assets/icons/baby.svg",
-                  color: iconBlueDark,
+                  color: Colors.grey,
                   // By default our  icon color is white
                 ),
-                Text('Baby', style: const TextStyle(fontSize: textSmall,color: iconBlueDark,))
+                Text('Baby', style: const TextStyle(fontSize: textSmall,))
               ],
             ),
             selectedIcon: Column(
@@ -297,7 +228,297 @@ height: 20,
     child: ListView(
     children: [
       _selectedIndex == 0 ?
-      StreamBuilder<QuerySnapshot>  (
+          Container(
+
+
+
+            child:
+
+
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 10),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: paddingHorizontal),
+                  child: Text("All",
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: SecondaryDarkGrey)),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+
+
+                    Column(
+
+                        children:[
+                          GestureDetector(
+                            onTap: (){
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => ProductView(
+
+                                      )));
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+
+                                borderRadius: BorderRadius.circular(7),
+                              ),
+                              margin: EdgeInsets.all(10.0),
+                              child: new ClipRRect(
+                                borderRadius: new BorderRadius.circular(10.0),
+                                child: new Image(
+                                  image: new NetworkImage('https://media.istockphoto.com/photos/blue-chino-pants-with-brown-leather-belt-isolated-on-white-background-picture-id1149139165?k=20&m=1149139165&s=612x612&w=0&h=GZNt8WgiJ3tSbVmcAKbIUmFAzbulMTw1NJ7msG2Tyno='),
+                                  height: 60,
+                                  width:60,
+                                  fit: BoxFit.fill,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Text('Trousers',
+                            style: TextStyle(color: iconBlueDark, fontWeight: FontWeight.bold),)
+                        ]
+                    ),
+                    Column(
+
+                        children:[
+                          Container(
+                            decoration: BoxDecoration(
+
+                              borderRadius: BorderRadius.circular(7),
+                            ),
+                            margin: EdgeInsets.all(10.0),
+                            child: new ClipRRect(
+                              borderRadius: new BorderRadius.circular(10.0),
+                              child: new Image(
+                                image: new NetworkImage('https://dpegb9ebondhq.cloudfront.net/product_photos/85797283/file_335a51ac92_original.jpg'),
+                                height: 60,
+                                width: 60,
+                                fit: BoxFit.fill,
+                              ),
+                            ),
+                          ),
+                          Text('Shoes',
+                            style: TextStyle(color: iconBlueDark, fontWeight: FontWeight.bold),)
+                        ]
+                    ),
+                    Column(
+
+                        children:[
+                          Container(
+                            decoration: BoxDecoration(
+
+                              borderRadius: BorderRadius.circular(7),
+                            ),
+                            margin: EdgeInsets.all(10.0),
+                            child: new ClipRRect(
+                              borderRadius: new BorderRadius.circular(10.0),
+                              child: new Image(
+                                image: new NetworkImage('https://i.pinimg.com/originals/8e/5f/86/8e5f86f5290eec3f09db5e405b25e07a.png'),
+                                height: 60,
+                                width: 60,
+                                fit: BoxFit.fill,
+                              ),
+                            ),
+                          ),
+                          Text('Dresses',
+                            style: TextStyle(color: iconBlueDark, fontWeight: FontWeight.bold),)
+                        ]
+                    ),
+                    Column(
+
+                        children:[
+                          Container(
+                            decoration: BoxDecoration(
+
+                              borderRadius: BorderRadius.circular(7),
+                            ),
+                            margin: EdgeInsets.all(10.0),
+                            child: new ClipRRect(
+                              borderRadius: new BorderRadius.circular(10.0),
+                              child: new Image(
+                                image: new NetworkImage('https://cdn.shopify.com/s/files/1/0409/7245/products/skyblue_26f13da0-a8df-496a-a86a-bdeb3e844223_1024x1024.png?v=1603977357'),
+                                height: 60,
+                                width: 60,
+                                fit: BoxFit.fill,
+                              ),
+                            ),
+                          ),
+                          Text('IPhones',
+                            style: TextStyle(color: iconBlueDark, fontWeight: FontWeight.bold),)
+                        ]
+                    ),
+                  ],
+                ),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+
+
+                    Column(
+
+                        children:[
+                          Container(
+                            decoration: BoxDecoration(
+
+                              borderRadius: BorderRadius.circular(7),
+                            ),
+                            margin: EdgeInsets.all(10.0),
+                            child: new ClipRRect(
+                              borderRadius: new BorderRadius.circular(10.0),
+                              child: new Image(
+                                image: new NetworkImage('https://p2-ofp.static.pub/fes/cms/2021/04/28/odtbtgltop8fb3ytjpdy4orxz9a3l7232523.jpg'),
+                                height: 60,
+                                width:60,
+                                fit: BoxFit.fill,
+                              ),
+                            ),
+                          ),
+                          Text('Lenevo LP',
+                            style: TextStyle(color: iconBlueDark, fontWeight: FontWeight.bold),)
+                        ]
+                    ),
+                    Column(
+
+                        children:[
+                          Container(
+                            decoration: BoxDecoration(
+
+                              borderRadius: BorderRadius.circular(7),
+                            ),
+                            margin: EdgeInsets.all(10.0),
+                            child: new ClipRRect(
+                              borderRadius: new BorderRadius.circular(10.0),
+                              child: new Image(
+                                image: new NetworkImage('https://www.homelane.com/blog/wp-content/uploads/2021/11/shutterstock_735847378.jpg'),
+                                height: 60,
+                                width: 60,
+                                fit: BoxFit.fill,
+                              ),
+                            ),
+                          ),
+                          Text('Sofa Sets',
+                            style: TextStyle(color: iconBlueDark, fontWeight: FontWeight.bold),)
+                        ]
+                    ),
+                    Column(
+
+                        children:[
+                          Container(
+                            decoration: BoxDecoration(
+
+                              borderRadius: BorderRadius.circular(7),
+                            ),
+                            margin: EdgeInsets.all(10.0),
+                            child: new ClipRRect(
+                              borderRadius: new BorderRadius.circular(10.0),
+                              child: new Image(
+                                image: new NetworkImage('https://cdn.shopify.com/s/files/1/0075/2815/3206/products/FRAND02.jpg?v=1576271268'),
+                                height: 60,
+                                width: 60,
+                                fit: BoxFit.fill,
+                              ),
+                            ),
+                          ),
+                          Text('Dinning Tables',
+                            style: TextStyle(color: iconBlueDark, fontWeight: FontWeight.bold),)
+                        ]
+                    ),
+                    Column(
+
+                        children:[
+                          Container(
+                            decoration: BoxDecoration(
+
+                              borderRadius: BorderRadius.circular(7),
+                            ),
+                            margin: EdgeInsets.all(10.0),
+                            child: new ClipRRect(
+                              borderRadius: new BorderRadius.circular(10.0),
+                              child: new Image(
+                                image: new NetworkImage('https://www.keeltoys.com/wp-content/uploads/2013/10/SN0513-775x857.jpg'),
+                                height: 60,
+                                width: 60,
+                                fit: BoxFit.fill,
+                              ),
+                            ),
+                          ),
+                          Text('Dolls',
+                            style: TextStyle(color: iconBlueDark, fontWeight: FontWeight.bold),)
+                        ]
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+
+
+                    Column(
+
+                        children:[
+                          Container(
+                            decoration: BoxDecoration(
+
+                              borderRadius: BorderRadius.circular(7),
+                            ),
+                            margin: EdgeInsets.all(10.0),
+                            child: new ClipRRect(
+                              borderRadius: new BorderRadius.circular(10.0),
+                              child: new Image(
+                                image: new NetworkImage('https://babyshopnigeria.com/wp-content/uploads/2018/10/61ROw2YmqfL._SL1000_.jpg'),
+                                height: 60,
+                                width:60,
+                                fit: BoxFit.fill,
+                              ),
+                            ),
+                          ),
+                          Text('Baby Net',
+                            style: TextStyle(color: iconBlueDark, fontWeight: FontWeight.bold),)
+                        ]
+                    ),
+                    Column(
+
+                        children:[
+                          Container(
+                            decoration: BoxDecoration(
+
+                              borderRadius: BorderRadius.circular(7),
+                            ),
+                            margin: EdgeInsets.all(10.0),
+                            child: new ClipRRect(
+                              borderRadius: new BorderRadius.circular(10.0),
+                              child: new Image(
+                                image: new NetworkImage('https://secure.img1-cg.wfcdn.com/im/00231479/resize-h600-w600%5Ecompr-r85/1748/174807175/KALUNS+24-Piece+Assorted+Kitchen+Utensil+Set.jpg'),
+                                height: 60,
+                                width: 60,
+                                fit: BoxFit.fill,
+                              ),
+                            ),
+                          ),
+                          Text('Kitchen Utensils',
+                            style: TextStyle(color: iconBlueDark, fontWeight: FontWeight.bold),)
+                        ]
+                    ),
+
+                  ],
+                ),
+
+                Divider(),
+                const SizedBox(height: 10),
+
+              ],
+            ),
+
+          )
+      /*StreamBuilder<QuerySnapshot>  (
           stream: FirebaseFirestore.instance
               .collection('products')
               .where('status', isEqualTo:"live")
@@ -431,10 +652,89 @@ height: 20,
                   }
               );
             }
-          })
+          })*/
           :_selectedIndex == 1
           ?
-      StreamBuilder<QuerySnapshot>  (
+      Container(
+
+
+
+        child:
+
+
+        Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+            const SizedBox(height: 10),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontal),
+          child: Text("Electronics",
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: SecondaryDarkGrey)),
+        ),
+
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Column(
+
+                      children:[
+                        Container(
+                          decoration: BoxDecoration(
+
+                            borderRadius: BorderRadius.circular(7),
+                          ),
+                          margin: EdgeInsets.all(10.0),
+                          child: new ClipRRect(
+                            borderRadius: new BorderRadius.circular(10.0),
+                            child: new Image(
+                              image: new NetworkImage('https://p2-ofp.static.pub/fes/cms/2021/04/28/odtbtgltop8fb3ytjpdy4orxz9a3l7232523.jpg'),
+                              height: 60,
+                              width:60,
+                              fit: BoxFit.fill,
+                            ),
+                          ),
+                        ),
+                        Text('Lenevo LP',
+                          style: TextStyle(color: iconBlueDark, fontWeight: FontWeight.bold),)
+                      ]
+                  ),
+
+                  Column(
+
+                      children:[
+                        Container(
+                          decoration: BoxDecoration(
+
+                            borderRadius: BorderRadius.circular(7),
+                          ),
+                          margin: EdgeInsets.all(10.0),
+                          child: new ClipRRect(
+                            borderRadius: new BorderRadius.circular(10.0),
+                            child: new Image(
+                              image: new NetworkImage('https://cdn.shopify.com/s/files/1/0409/7245/products/skyblue_26f13da0-a8df-496a-a86a-bdeb3e844223_1024x1024.png?v=1603977357'),
+                              height: 60,
+                              width: 60,
+                              fit: BoxFit.fill,
+                            ),
+                          ),
+                        ),
+                        Text('IPhones',
+                          style: TextStyle(color: iconBlueDark, fontWeight: FontWeight.bold),)
+                      ]
+                  ),
+
+
+
+                ],
+              ),
+
+
+      ]))
+     /* StreamBuilder<QuerySnapshot>  (
           stream: FirebaseFirestore.instance
               .collection('products')
               .where('status', isEqualTo:"live")
@@ -569,11 +869,90 @@ height: 20,
                   }
               );
             }
-          })
+          })*/
           :
       _selectedIndex == 2
           ?
-      StreamBuilder<QuerySnapshot>  (
+      Container(
+
+
+
+          child:
+
+
+          Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 10),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: paddingHorizontal),
+                  child: Text("Furniture",
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: SecondaryDarkGrey)),
+                ),
+
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+
+                    Column(
+
+                        children:[
+                          Container(
+                            decoration: BoxDecoration(
+
+                              borderRadius: BorderRadius.circular(7),
+                            ),
+                            margin: EdgeInsets.all(10.0),
+                            child: new ClipRRect(
+                              borderRadius: new BorderRadius.circular(10.0),
+                              child: new Image(
+                                image: new NetworkImage('https://www.homelane.com/blog/wp-content/uploads/2021/11/shutterstock_735847378.jpg'),
+                                height: 60,
+                                width: 60,
+                                fit: BoxFit.fill,
+                              ),
+                            ),
+                          ),
+                          Text('Sofa Sets',
+                            style: TextStyle(color: iconBlueDark, fontWeight: FontWeight.bold),)
+                        ]
+                    ),
+                    Column(
+
+                        children:[
+                          Container(
+                            decoration: BoxDecoration(
+
+                              borderRadius: BorderRadius.circular(7),
+                            ),
+                            margin: EdgeInsets.all(10.0),
+                            child: new ClipRRect(
+                              borderRadius: new BorderRadius.circular(10.0),
+                              child: new Image(
+                                image: new NetworkImage('https://cdn.shopify.com/s/files/1/0075/2815/3206/products/FRAND02.jpg?v=1576271268'),
+                                height: 60,
+                                width: 60,
+                                fit: BoxFit.fill,
+                              ),
+                            ),
+                          ),
+                          Text('Dinning Tables',
+                            style: TextStyle(color: iconBlueDark, fontWeight: FontWeight.bold),)
+                        ]
+                    ),
+
+
+                  ],
+                ),
+
+
+
+              ]))
+     /* StreamBuilder<QuerySnapshot>  (
           stream: FirebaseFirestore.instance
               .collection('products')
               .where('status', isEqualTo:"live")
@@ -708,11 +1087,112 @@ height: 20,
                   }
               );
             }
-          })
+          })*/
           :
       _selectedIndex == 3
           ?
-      StreamBuilder<QuerySnapshot>  (
+      Container(
+
+
+
+          child:
+
+
+          Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 10),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: paddingHorizontal),
+                  child: Text("Fashion",
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: SecondaryDarkGrey)),
+                ),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+
+
+                    Column(
+
+                        children:[
+                          Container(
+                            decoration: BoxDecoration(
+
+                              borderRadius: BorderRadius.circular(7),
+                            ),
+                            margin: EdgeInsets.all(10.0),
+                            child: new ClipRRect(
+                              borderRadius: new BorderRadius.circular(10.0),
+                              child: new Image(
+                                image: new NetworkImage('https://media.istockphoto.com/photos/blue-chino-pants-with-brown-leather-belt-isolated-on-white-background-picture-id1149139165?k=20&m=1149139165&s=612x612&w=0&h=GZNt8WgiJ3tSbVmcAKbIUmFAzbulMTw1NJ7msG2Tyno='),
+                                height: 60,
+                                width:60,
+                                fit: BoxFit.fill,
+                              ),
+                            ),
+                          ),
+                          Text('Trousers',
+                            style: TextStyle(color: iconBlueDark, fontWeight: FontWeight.bold),)
+                        ]
+                    ),
+                    Column(
+
+                        children:[
+                          Container(
+                            decoration: BoxDecoration(
+
+                              borderRadius: BorderRadius.circular(7),
+                            ),
+                            margin: EdgeInsets.all(10.0),
+                            child: new ClipRRect(
+                              borderRadius: new BorderRadius.circular(10.0),
+                              child: new Image(
+                                image: new NetworkImage('https://dpegb9ebondhq.cloudfront.net/product_photos/85797283/file_335a51ac92_original.jpg'),
+                                height: 60,
+                                width: 60,
+                                fit: BoxFit.fill,
+                              ),
+                            ),
+                          ),
+                          Text('Shoes',
+                            style: TextStyle(color: iconBlueDark, fontWeight: FontWeight.bold),)
+                        ]
+                    ),
+                    Column(
+
+                        children:[
+                          Container(
+                            decoration: BoxDecoration(
+
+                              borderRadius: BorderRadius.circular(7),
+                            ),
+                            margin: EdgeInsets.all(10.0),
+                            child: new ClipRRect(
+                              borderRadius: new BorderRadius.circular(10.0),
+                              child: new Image(
+                                image: new NetworkImage('https://i.pinimg.com/originals/8e/5f/86/8e5f86f5290eec3f09db5e405b25e07a.png'),
+                                height: 60,
+                                width: 60,
+                                fit: BoxFit.fill,
+                              ),
+                            ),
+                          ),
+                          Text('Dresses',
+                            style: TextStyle(color: iconBlueDark, fontWeight: FontWeight.bold),)
+                        ]
+                    ),
+
+                  ],
+                ),
+
+
+
+              ]))
+      /*StreamBuilder<QuerySnapshot>  (
           stream: FirebaseFirestore.instance
               .collection('products')
               .where('status', isEqualTo:"live")
@@ -847,11 +1327,90 @@ height: 20,
                   }
               );
             }
-          })
+          })*/
           :
       _selectedIndex == 4
           ?
-      StreamBuilder<QuerySnapshot>  (
+      Container(
+
+
+
+          child:
+
+
+          Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 10),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: paddingHorizontal),
+                  child: Text("Baby",
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: SecondaryDarkGrey)),
+                ),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+
+
+                    Column(
+
+                        children:[
+                          Container(
+                            decoration: BoxDecoration(
+
+                              borderRadius: BorderRadius.circular(7),
+                            ),
+                            margin: EdgeInsets.all(10.0),
+                            child: new ClipRRect(
+                              borderRadius: new BorderRadius.circular(10.0),
+                              child: new Image(
+                                image: new NetworkImage('https://babyshopnigeria.com/wp-content/uploads/2018/10/61ROw2YmqfL._SL1000_.jpg'),
+                                height: 60,
+                                width:60,
+                                fit: BoxFit.fill,
+                              ),
+                            ),
+                          ),
+                          Text('Baby Net',
+                            style: TextStyle(color: iconBlueDark, fontWeight: FontWeight.bold),)
+                        ]
+                    ),
+                    Column(
+
+                        children:[
+                          Container(
+                            decoration: BoxDecoration(
+
+                              borderRadius: BorderRadius.circular(7),
+                            ),
+                            margin: EdgeInsets.all(10.0),
+                            child: new ClipRRect(
+                              borderRadius: new BorderRadius.circular(10.0),
+                              child: new Image(
+                                image: new NetworkImage('https://www.keeltoys.com/wp-content/uploads/2013/10/SN0513-775x857.jpg'),
+                                height: 60,
+                                width: 60,
+                                fit: BoxFit.fill,
+                              ),
+                            ),
+                          ),
+                          Text('Dolls',
+                            style: TextStyle(color: iconBlueDark, fontWeight: FontWeight.bold),)
+                        ]
+                    ),
+
+
+                  ],
+                ),
+
+
+
+              ]))
+     /* StreamBuilder<QuerySnapshot>  (
           stream: FirebaseFirestore.instance
               .collection('products')
               .where('status', isEqualTo:"live")
@@ -986,7 +1545,7 @@ height: 20,
                   }
               );
             }
-          })
+          })*/
           :
       SizedBox(
         height: MediaQuery.of(context).size.height -

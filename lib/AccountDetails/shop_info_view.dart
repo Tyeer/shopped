@@ -34,7 +34,7 @@ class ShopInfoView extends StatefulWidget {
 }
 
 CollectionReference question = FirebaseFirestore.instance.collection('Quiz');
-var currentuser = FirebaseAuth.instance.currentUser!.uid;
+//final currentuser = FirebaseAuth.instance.currentUser!.uid;
 
 
 class _ShopInfoViewState extends State<ShopInfoView> {
@@ -89,7 +89,7 @@ class _ShopInfoViewState extends State<ShopInfoView> {
     }
   }
   Future<void> updateShopInfo(String id, String name, String location, String paymentMethod, String imageUrl) async {
-    await FirebaseFirestore.instance.collection('users').doc(currentuser).update({
+    await FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid).update({
       'ShopName': name,
       'coverImage': imageUrl,
       'ShopLocation' : location,
@@ -221,7 +221,7 @@ class _ShopInfoViewState extends State<ShopInfoView> {
                       debugPrint(_id.trim());
                       await prefs.setString('coverImage', imageUrl ?? "");
                       await prefs.setString('ShopName', name);
-                      await updateShopInfo(currentuser, name, location, method, imageUrl!);
+                      await updateShopInfo(FirebaseAuth.instance.currentUser!.uid, name, location, method, imageUrl!);
 
                       setState(() {
                         _isLoading = false;

@@ -97,18 +97,18 @@ CollectionReference users = FirebaseFirestore.instance.collection('users');
 
 
    void validator (){
-     if (email.text.isEmpty && pasword.text.isEmpty && username.text.isEmpty ){
+     if (pasword.text.isEmpty && username.text.isEmpty ){
 
        Fluttertoast.showToast(
            msg:'Please Enter Username, Email and Password '
        );
      }
-     else if(email.text.isEmpty){
+     /*else if(email.text.isEmpty){
 
        Fluttertoast.showToast(
            msg:'Please Enter Email '
        );
-     }
+     }*/
      else if(pasword.text.isEmpty){
        Fluttertoast.showToast(
            msg:'Please Enter Password '
@@ -125,7 +125,7 @@ CollectionReference users = FirebaseFirestore.instance.collection('users');
        setState(() {
          loading = true;
        });
-       register();
+       add();
      }
    }
    void register(){
@@ -256,7 +256,189 @@ CollectionReference users = FirebaseFirestore.instance.collection('users');
 
          backgroundColor: Colors.white,
          resizeToAvoidBottomInset: false,
-         body: Stack(
+         body:
+
+     Container(
+     decoration: BoxDecoration(
+     gradient: LinearGradient(begin: Alignment.topLeft, colors: [
+     Color(0xFFffffff),
+     Color(0xFFffffff),
+     Color(0xFFffffff),
+     ])),
+     child: new ListView(
+     children: <Widget>[
+     Column(
+     children: <Widget>[
+
+       _title(),
+       SizedBox(
+         height: 108,
+       ),
+
+       SizedBox(
+         height: 20,
+       ),
+       Container(
+         child: Column(
+           crossAxisAlignment: CrossAxisAlignment.start,
+           children: <Widget>[
+             Text(
+               "Full Name",
+               style: TextStyle(
+                   fontWeight: FontWeight.w500,
+                   fontSize: textMedium),
+             ),
+             SizedBox(
+               height: 10,
+             ),
+
+             Container(
+               height: 45,
+               padding: const EdgeInsets.all(5),
+
+               decoration: BoxDecoration(
+                 color: Color(0xfff2f2f2),
+                 border: Border.all(
+                   color: Color(0xfff2f2f2),
+                   width: 1,
+                 ),
+
+                 borderRadius: BorderRadius.circular(10),
+               ),
+               child: TextFormField(
+
+
+                 controller: username,
+                 textInputAction: TextInputAction.next,
+                 cursorColor: const Color(0xFFffffff),
+                 decoration: InputDecoration(
+                   border: InputBorder.none,
+                   filled: true,
+
+                   fillColor: Color(0xfff2f2f2),
+                 ),
+               ),
+             ),
+           ],
+         ),
+       ),
+
+       SizedBox(
+         height: 20,
+       ),/*
+       Container(
+         child: Column(
+           crossAxisAlignment: CrossAxisAlignment.start,
+           children: <Widget>[
+             Text(
+               "Enter Email",
+               style: TextStyle(
+                   fontWeight: FontWeight.w500,
+                   fontSize: textMedium),
+             ),
+             SizedBox(
+               height: 10,
+             ),
+
+             Container(
+               height: 45,
+               padding: const EdgeInsets.all(5),
+
+               decoration: BoxDecoration(
+                 color: Color(0xfff2f2f2),
+                 border: Border.all(
+                   color: Color(0xfff2f2f2),
+                   width: 1,
+                 ),
+
+                 borderRadius: BorderRadius.circular(10),
+               ),
+               child: TextFormField(
+
+
+                 controller: email,
+                 textInputAction: TextInputAction.next,
+                 cursorColor: const Color(0xFFffffff),
+                 decoration: InputDecoration(
+                   border: InputBorder.none,
+                   filled: true,
+
+                   fillColor: Color(0xfff2f2f2),
+                 ),
+               ),
+             ),
+           ],
+         ),
+       ),*/
+       SizedBox(
+         height: 20,
+       ),
+       Container(
+         child: Column(
+           crossAxisAlignment: CrossAxisAlignment.start,
+           children: <Widget>[
+             Text(
+               "Password",
+               style: TextStyle(
+                   fontWeight: FontWeight.w500,
+                   fontSize: textMedium),
+             ),
+             SizedBox(
+               height: 10,
+             ),
+
+
+             Container(
+               height: 45,
+               padding: const EdgeInsets.all(5),
+
+
+               decoration: BoxDecoration(
+                 color: Color(0xfff2f2f2),
+                 border: Border.all(
+                   color: Color(0xfff2f2f2),
+                   width: 1,
+                 ),
+
+                 borderRadius: BorderRadius.circular(10),
+               ),
+               child: TextFormField(
+
+                 controller: pasword,
+                 obscureText: passwordVisible,
+                 textInputAction: TextInputAction.done,
+                 cursorColor: const Color(0xFFffffff),
+                 decoration: InputDecoration(
+                   border: InputBorder.none,
+                   filled: true,
+                   suffixIcon: IconButton(
+                     iconSize: 15,
+                     icon: Icon(
+
+                       passwordVisible
+                           ? Icons.visibility_outlined
+                           : Icons.visibility_off_outlined,
+                     ),
+                     onPressed: () {
+                       setState(() {
+                         passwordVisible = !passwordVisible;
+                       });
+                     },
+                   ),
+                   fillColor: Color(0xfff2f2f2),
+                 ),
+               ),
+             ),
+           ],
+         ),
+       ),
+       SizedBox(height: 100),
+       _submitButton("Continue"),
+
+])]))
+
+
+        /* Stack(
            children: <Widget>[
               Positioned(
                  top: 21,
@@ -269,170 +451,7 @@ CollectionReference users = FirebaseFirestore.instance.collection('users');
                      crossAxisAlignment: CrossAxisAlignment.start,
                      mainAxisAlignment: MainAxisAlignment.center,
                      children: <Widget>[
-                       _title(),
-                       SizedBox(
-                         height: 108,
-                       ),
 
-                       SizedBox(
-                         height: 20,
-                       ),
-                       Container(
-                         child: Column(
-                           crossAxisAlignment: CrossAxisAlignment.start,
-                           children: <Widget>[
-                             Text(
-                               "Full Name",
-                               style: TextStyle(
-                                   fontWeight: FontWeight.w500,
-                                   fontSize: textMedium),
-                             ),
-                             SizedBox(
-                               height: 10,
-                             ),
-
-                             Container(
-                               height: 45,
-                               padding: const EdgeInsets.all(5),
-
-                               decoration: BoxDecoration(
-                                 color: Color(0xfff2f2f2),
-                                 border: Border.all(
-                                   color: Color(0xfff2f2f2),
-                                   width: 1,
-                                 ),
-
-                                 borderRadius: BorderRadius.circular(10),
-                               ),
-                               child: TextFormField(
-
-
-                                 controller: username,
-                                 textInputAction: TextInputAction.next,
-                                 cursorColor: const Color(0xFFffffff),
-                                 decoration: InputDecoration(
-                                   border: InputBorder.none,
-                                   filled: true,
-
-                                   fillColor: Color(0xfff2f2f2),
-                                 ),
-                               ),
-                             ),
-                           ],
-                         ),
-                       ),
-
-                       SizedBox(
-                         height: 20,
-                       ),
-                       Container(
-                         child: Column(
-                           crossAxisAlignment: CrossAxisAlignment.start,
-                           children: <Widget>[
-                             Text(
-                               "Enter Email",
-                               style: TextStyle(
-                                   fontWeight: FontWeight.w500,
-                                   fontSize: textMedium),
-                             ),
-                             SizedBox(
-                               height: 10,
-                             ),
-
-                             Container(
-                               height: 45,
-                               padding: const EdgeInsets.all(5),
-
-                               decoration: BoxDecoration(
-                                 color: Color(0xfff2f2f2),
-                                 border: Border.all(
-                                   color: Color(0xfff2f2f2),
-                                   width: 1,
-                                 ),
-
-                                 borderRadius: BorderRadius.circular(10),
-                               ),
-                               child: TextFormField(
-
-
-                                 controller: email,
-                                 textInputAction: TextInputAction.next,
-                                 cursorColor: const Color(0xFFffffff),
-                                 decoration: InputDecoration(
-                                   border: InputBorder.none,
-                                   filled: true,
-
-                                   fillColor: Color(0xfff2f2f2),
-                                 ),
-                               ),
-                             ),
-                           ],
-                         ),
-                       ),
-                       SizedBox(
-                         height: 20,
-                       ),
-                       Container(
-                         child: Column(
-                           crossAxisAlignment: CrossAxisAlignment.start,
-                           children: <Widget>[
-                             Text(
-                               "Password",
-                               style: TextStyle(
-                                   fontWeight: FontWeight.w500,
-                                   fontSize: textMedium),
-                             ),
-                             SizedBox(
-                               height: 10,
-                             ),
-
-
-                             Container(
-                               height: 45,
-                               padding: const EdgeInsets.all(5),
-
-
-                               decoration: BoxDecoration(
-                                 color: Color(0xfff2f2f2),
-                                 border: Border.all(
-                                   color: Color(0xfff2f2f2),
-                                   width: 1,
-                                 ),
-
-                                 borderRadius: BorderRadius.circular(10),
-                               ),
-                               child: TextFormField(
-
-                                 controller: pasword,
-                                 obscureText: passwordVisible,
-                                 textInputAction: TextInputAction.done,
-                                 cursorColor: const Color(0xFFffffff),
-                                 decoration: InputDecoration(
-                                   border: InputBorder.none,
-                                   filled: true,
-                                   suffixIcon: IconButton(
-                                     iconSize: 15,
-                                     icon: Icon(
-
-                                       passwordVisible
-                                           ? Icons.visibility_outlined
-                                           : Icons.visibility_off_outlined,
-                                     ),
-                                     onPressed: () {
-                                       setState(() {
-                                         passwordVisible = !passwordVisible;
-                                       });
-                                     },
-                                   ),
-                                   fillColor: Color(0xfff2f2f2),
-                                 ),
-                               ),
-                             ),
-                           ],
-                         ),
-                       ),
-                       SizedBox(height: 100),
-                       _submitButton("Continue"),
 
                      ],
                    ),
@@ -442,7 +461,7 @@ CollectionReference users = FirebaseFirestore.instance.collection('users');
              Positioned(
                  bottom: 30, left: 0, right: 0, child: _createAccountLabel()),
            ],
-         )
+         )*/
      );
    }
  }

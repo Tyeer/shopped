@@ -94,23 +94,27 @@ class _OrderViewState extends State<OrderView> {
     });
 
   }
+
+
   bool _isloading = false;
  void  _saveData(String imageUrl, String productId,  String price2, String name, String imageUrl2, String sellerId){
  var total = price2 * counter;
     DocumentReference ref = FirebaseFirestore.instance.collection('orders').doc();
  String orderno = generateRandomString(15);
 
-FirebaseFirestore.instance.collection('orders').add({
+FirebaseFirestore.instance.collection('orders').doc(orderno).set({
   'Proof': imageUrl,
   'Date Ordered': DateFormat('MMM d, yyyy').format(DateTime.now()),
   'buyerId': FirebaseAuth.instance.currentUser?.uid,
+  'buyername': _username,
+
   'sellerId': sellerId,
-  'addressId':'3LHrSSH8KYUgd9OhkmZC88FbUX23',
+  'addressId': addressid,
   'quantity': counter,
   'productId': widget.id,
-  'orderNo': orderno,
-  'Oid': ref.id,
-  "orderStatus": "pending",
+  'orderNo': ref.id,
+  'Oid': orderno,
+  "orderStatus": "Pending",
   "paymentMethods": "cash",
   "totalAmount": total,
   "imageUrl": imageUrl2,
@@ -132,7 +136,7 @@ Fluttertoast.showToast(
   Navigator.of(context).push(MaterialPageRoute(builder: (context){
     return ConfirmOrder(
 
-      id: ref.id, seller: sellerId
+      id: orderno, seller: sellerId
 
     );
   }));
@@ -148,6 +152,7 @@ Fluttertoast.showToast(
 
   final Repository repo = Repository();
   String _userId = "";
+  String _username = "";
 
   final DateFormat format = DateFormat('yyyy-MM-ddTHH:mm:ss');
 
@@ -182,6 +187,9 @@ Fluttertoast.showToast(
 
     }
   }
+
+  var  total3 = 0;
+  String addressid = '';
   @override
   Widget build(BuildContext context) {
 
@@ -231,6 +239,8 @@ Fluttertoast.showToast(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+
+
                       Expanded(
                         child: Text(
                           widget.id,
@@ -275,12 +285,26 @@ Fluttertoast.showToast(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: const [
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children:  [
                   Text(
                     "Address",
                     style: TextStyle(
                         fontSize: textMedium, fontWeight: FontWeight.bold),
+                  ),
+
+                  IconButton(
+                    onPressed: () =>{
+
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => const AddressesView())),
+
+                    },
+                    icon: SvgPicture.asset(
+                      "assets/icons/right.svg",
+                      color: Colors.blue,
+                      height: 25,
+                    ),
                   ),
                 ],
               ),
@@ -298,9 +322,9 @@ Fluttertoast.showToast(
 
                 StreamBuilder<QuerySnapshot>  (
                     stream: FirebaseFirestore.instance
-                        .collection('addresses').
-                    where('userId', isEqualTo: currentuser)
-
+                        .collection('address')
+                    .where('Uid', isEqualTo: currentuser)
+                    .limit(1)
                         .snapshots(),
                     builder: (context, snapshot) {
 
@@ -308,7 +332,7 @@ Fluttertoast.showToast(
                         return Center(child: Text("Something went wrong"));
                       }
                       else if (!snapshot.hasData) {
-                        return CircularProgressIndicator();
+                        return Center(child: CircularProgressIndicator());
                       }
 
                       else {
@@ -319,59 +343,96 @@ Fluttertoast.showToast(
                             scrollDirection: Axis.vertical,
                             itemBuilder: (context, index) {
                               DocumentSnapshot doc = snapshot.data!.docs[index];
-                              return
 
-                Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
+                              addressid = doc['Aid'];
+    if (doc['Uid'] == currentuser) {
+      return Container(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  doc['name'],
+                  style: const TextStyle(
+                      fontSize: textMedium,
+                      fontWeight: FontWeight.w400),
+                ),
+                Text(
+                  doc['phone'],
+                  style: const TextStyle(
+                      fontSize: textMedium,
+                      fontWeight: FontWeight.w400),
+                ),
+                Text(
+                  doc['address'],
+                  style: const TextStyle(
+                      fontSize: textMedium,
+                      fontWeight: FontWeight.w400),
+                ),
+                Text(
+                  doc['city'],
+                  style: const TextStyle(
+                      fontSize: textMedium,
+                      fontWeight: FontWeight.w400),
+                ),
+              ],
+            ),
+
+
+          ],
+        ),
+      );
+    }
+    else{
+      return Container(
+
+
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+
+            Row(
+
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                SvgPicture.network(
+                  "https://www.svgrepo.com/show/374529/address.svg",
+                  color: Colors.black,
+                  height: 25,
+                ),
+                SizedBox(width: 10,),
+                Text('Add Address', style: TextStyle(
+                  color: Colors.black,
+                ),),
+              ],
+            ),
+
+            IconButton(
+              onPressed: () =>{
+
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => const AddressesView())),
+
+              },
+              icon: SvgPicture.asset(
+                "assets/icons/right.svg",
+                color: Colors.blue,
+                height: 25,
+              ),
+            ),
+
+
+          ],
+        ),
+
+      );
+    }
 
 
 
-
-                              Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                 doc['name'],
-                                  style: const TextStyle(
-                                      fontSize: textMedium,
-                                      fontWeight: FontWeight.w400),
-                                ),
-                                Text(
-                                 doc['phone'],
-                                  style: const TextStyle(
-                                      fontSize: textMedium,
-                                      fontWeight: FontWeight.w400),
-                                ),
-                                Text(
-                                  doc['address'],
-                                  style: const TextStyle(
-                                      fontSize: textMedium,
-                                      fontWeight: FontWeight.w400),
-                                ),
-                                Text(
-                                  doc['city'],
-                                  style: const TextStyle(
-                                      fontSize: textMedium,
-                                      fontWeight: FontWeight.w400),
-                                ),
-                              ],
-                            ),
-
-                      IconButton(
-                        onPressed: () =>{ },
-                        icon: SvgPicture.asset(
-                          "assets/icons/right.svg",
-                          color: PrimaryBlueOcean,
-                          height: 25,
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-
-    ;
 
   });}
 
@@ -448,7 +509,7 @@ Fluttertoast.showToast(
               var after = int.tryParse(price);
 
 
-             var  total3 = after! * counter;
+               total3 = after! * counter;
 
               return
 
@@ -553,7 +614,38 @@ Fluttertoast.showToast(
                     style: const TextStyle(fontSize: 16),
                   ),
                 ],
-              )
+              ),
+
+              StreamBuilder<QuerySnapshot>  (
+                  stream: FirebaseFirestore.instance
+                      .collection('users')
+                      .where('Uid', isEqualTo:currentuser)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Text("Something went wrong");
+                    }
+                    if (!snapshot.hasData) {
+                      return CircularProgressIndicator();
+                    }
+                    else {
+                      return ListView.builder(
+                          itemCount: snapshot.data!.docs.length,
+                          scrollDirection: Axis.vertical,
+                          shrinkWrap: true,
+                          physics: ClampingScrollPhysics(),
+
+
+                          itemBuilder: (context, index) {
+
+                            DocumentSnapshot doc = snapshot.data!.docs[index];
+
+                            _username = doc['Fullname'];
+
+                            return Text(_username);
+
+                          });}}),
+
             ],
           ),
         );
@@ -600,7 +692,7 @@ Fluttertoast.showToast(
                               height: 5,
                             ),
                             Text(
-                              'K ${((total2 * counter).toString()).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}.00'
+                              'K ${((total3 * counter).toString()).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}.00'
                               ,
                               style: const TextStyle(
                                   fontSize: 18,

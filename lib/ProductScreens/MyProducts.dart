@@ -144,7 +144,7 @@ class _MyProductsState extends State<MyProducts> {
     return Text("Something went wrong");
     }
     if (!snapshot.hasData) {
-    return CircularProgressIndicator();
+    return Center(child: CircularProgressIndicator());
     }
     else {
 
@@ -433,7 +433,7 @@ class _MyProductsState extends State<MyProducts> {
 
                 ),
 
-                child: Text('Delete',
+                child: Text('Put Offline',
 
                   style: TextStyle(color: Colors.white,
                     fontSize: 20,

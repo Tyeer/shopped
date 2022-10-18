@@ -1,3 +1,6 @@
+import 'package:chat2/ProductScreens/ProductDetails.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:chat2/helpers/constants.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -16,6 +19,11 @@ class _StarredProductsViewState extends State<StarredProductsView> {
   void initState() {
     super.initState();
   }
+
+  CollectionReference starredproduct = FirebaseFirestore.instance.collection('starred');
+  Future<void> deleteStarred(id){
+    return starredproduct.doc(id).delete().then((value) => print('Product deleted successfully')).catchError((error)=>print('Failed to delete Product: $error'));
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,181 +37,148 @@ class _StarredProductsViewState extends State<StarredProductsView> {
                     end: Alignment.centerRight,
                     colors: <Color>[Color(0xff016DD1), Color(0xff17259C)]),
               ),
-            )),
-        body: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-          child: ListView(
-            children: [
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 13, vertical: 13),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
+            )
+    ),
 
-                        SvgPicture.network(
-                          "https://www.svgrepo.com/show/18137/home.svg",
-                          height: 15,
-
-                          color: Colors.red,
-                        ),
-                        const SizedBox(
-                          width: 5,
-                        ),
-                        Text(
-                          "Wilson Wholesellers",
-                          style: TextStyle(
-                              fontSize: textMedium,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 100,
-                              height: 100,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(5),
-                                image: DecorationImage(
-                                  image: NetworkImage("https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8c2hvZXN8ZW58MHx8MHx8&w=1000&q=80"),
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 15,
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SizedBox(
-                                  height: 25,
-                                ),
-                                Text(
-                                  "Product Name",
-                                  style: TextStyle(
-                                      fontSize: textMedium,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                SizedBox(
-                                  height: 30,
-                                ),
-                                Text(
-                                  "K1, 005.00",
-                                  style: TextStyle(
-                                      color: priceColor,
-                                      fontSize: textMedium,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Text(
-                      "10 Jan 2021",
-                      style: TextStyle(
-                          fontSize: textMedium, color: SecondaryDarkGrey),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ));
-  }
-}
-
-class OrderIDWidget extends StatelessWidget {
-  const OrderIDWidget({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 0.5,
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      body: Container(
+        child: ListView(
           children: [
-            Text(
-              "Order ID",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text("123bjdakdsoa"),
-                  Row(
-                    children: [
-                      Text(
-                        "Copy",
-                        style: TextStyle(color: Colors.blue[700]),
-                      ),
-                    ],
-                  )
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Text(
-              "Status",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text("Still delivering"),
-                  Container(
-                    padding: const EdgeInsets.all(5),
-                    color: Colors.green,
-                    child: Text(
-                      "Confrim Receipts",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  )
-                ],
-              ),
+
+            SizedBox(height: 10,),
+
+            StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('starred')
+                    .where('Uid',isEqualTo: FirebaseAuth.instance.currentUser!.uid )
+                    .limit(30)
+                    .snapshots(),
+                builder: (context, snapshot) {
+
+                  if (!snapshot.hasData) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  else {
+                    return
+                      ListView.builder(
+                          shrinkWrap: true,
+                          physics: ClampingScrollPhysics(),
+                          itemCount: snapshot.data!.docs.length,
+                          scrollDirection: Axis.vertical,
+                          itemBuilder: (context, index) {
+                            DocumentSnapshot doc = snapshot.data!.docs[index];
+                            return Container(
+                              height: 80,
+                              margin: const EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: Colors.white38,
+
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  GestureDetector(
+                                    onTap:(){
+                                      Navigator.of(context).push(MaterialPageRoute(builder: (context){
+                                        return ProductDetails(
+                                          id: doc['productid'],
+
+                                        );
+                                      }));
+                                    },
+                                    child: Container(
+                                      height: 80,
+                                      width: 80,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(0),
+                                        color: Colors.blue,
+                                        image: DecorationImage(
+                                          image: NetworkImage(
+                                            doc['image'],
+                                          ),
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 8,
+                                  ),
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(height: 20,),
+                                      Text(
+
+
+
+                                        doc['name'],
+                                        style: Theme
+                                            .of(context)
+                                            .textTheme
+                                            .headline3!
+                                            .copyWith(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      Text(
+                                        "Mwk "+ doc['price'].toString(),
+                                        style: Theme
+                                            .of(context)
+                                            .textTheme
+                                            .bodyText1,
+                                      ),
+
+
+
+                                    ],
+                                  ),
+                                  const Spacer(),
+                                  Expanded(
+
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        SizedBox(
+                                          height: 5,
+                                        ),
+                                        Text(
+                                          doc['Date Ordered'],
+                                          style: Theme
+                                              .of(context)
+                                              .textTheme
+                                              .bodyText1,
+                                        ),
+                                        IconButton(
+
+                                          onPressed: (){
+                                            deleteStarred(doc['Sid']);
+                                          },
+
+                                          icon: Icon(
+                                            Icons.delete_outlined,
+                                            color: Colors.red,
+                                          ),)
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          });
+                  }
+                }
             )
           ],
         ),
       ),
+
     );
+
   }
 }
+

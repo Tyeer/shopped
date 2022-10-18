@@ -37,7 +37,9 @@ class _RegisterBuyerViewState extends State<RegisterBuyerView> {
         backgroundColor: Colors.white,
         resizeToAvoidBottomInset: false,
         key: _scaffoldKey,
-        body: Center(
+
+        body:
+        Center(
     child: Padding(
     padding:   const EdgeInsets.symmetric(horizontal: paddingHorizontal),
     child: Column(

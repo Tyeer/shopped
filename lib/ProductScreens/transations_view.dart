@@ -99,6 +99,7 @@ class _TransactionsState extends State<Transactions> {
     "Refunded",
 
   ];
+  int current = 0;
   // By default our first item will be selected
   int selectedIndex = 0;
 
@@ -129,68 +130,89 @@ class _TransactionsState extends State<Transactions> {
       ),
     );
   }
+
   var currentuser = FirebaseAuth.instance.currentUser!.uid;
+
+  List<String> itmes = [
+    "All",
+    "Completed",
+    "Pending",
+    "Refunded",
+
+  ];
+
+
+  List<IconData> icons = [
+    Icons.home,
+    Icons.search,
+    Icons.feed,
+    Icons.person,
+  ];
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Column(
-          children: [
-            Expanded(
-                child:
+
+    return Scaffold(
+
+        body:
 
 
-                ListView(
-                    children: [
+        Container(
+          color: Colors.white,
+          child: Column(
+            children: [
 
-                      Expanded(
-                        child: Container(
-                          color: Colors.white,
-                          child: Column(
-                            children: [
-                              Container(
-                                color: Colors.white,
-                                child: Row(
-                                  children: [
+              SizedBox(height: 20,),
+              Container(
+                color: Colors.white,
+                child: Row(
+                  children: [
+                   /* IconButton(onPressed: (){
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>Search()));
+                    }, icon: Icon(Icons.search)),*/
+                    Expanded(
+                      child: SizedBox(
+                        height: 25,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: categories.length,
+                          itemBuilder: (context, index) => buildCategory(index),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(
+                height: 7,
+              ),
+              selectedIndex == 0
+                  ?
+                  ///all
+              StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('orders')
+                    .where('buyerId',isEqualTo: FirebaseAuth.instance.currentUser!.uid )
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return CircularProgressIndicator();
+                  } else {
 
-                                    Expanded(
-                                      child: SizedBox(
-                                        height: 25,
-                                        child: ListView.builder(
-                                          scrollDirection: Axis.horizontal,
-                                          itemCount: categories.length,
-                                          itemBuilder: (context, index) => buildCategory(index),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(
-                                height: 7,
-                              ),
-                              selectedIndex == 0
-                                  ?///all for products and orders
+                    return
+                      ListView.builder(
+                          shrinkWrap: true,
+                          physics: ClampingScrollPhysics(),
+                          itemCount: snapshot.data!.docs.length,
+                          scrollDirection: Axis.vertical,
+                          itemBuilder: (context, index) {
+                            DocumentSnapshot doc = snapshot.data!.docs[index];
 
-                              StreamBuilder<QuerySnapshot>(
-                                stream: FirebaseFirestore.instance
-                                    .collection('orders')
-                                    .where('sellerId',isEqualTo: currentuser )
-                                    .snapshots(),
-                                builder: (context, snapshot) {
-                                  if (!snapshot.hasData) {
-                                    return CircularProgressIndicator();
-                                  } else {
 
-                                    return
-                                      ListView.builder(
-                                          shrinkWrap: true,
-                                          physics: ClampingScrollPhysics(),
-                                          itemCount: snapshot.data!.docs.length,
-                                          scrollDirection: Axis.vertical,
-                                          itemBuilder: (context, index) {
-                                            DocumentSnapshot doc = snapshot.data!.docs[index];
-                                            return
+
+                            return
                               Column(
                                   children: [
                                     Padding(
@@ -265,6 +287,297 @@ class _TransactionsState extends State<Transactions> {
                                                     const SizedBox(
                                                       height: 5,
                                                     ),
+
+
+
+
+                                                    Container(
+                                                      alignment: Alignment.center,
+                                                      width: 100,
+                                                      decoration: BoxDecoration(
+                                                          borderRadius: BorderRadius.circular(5),
+
+                                                          gradient: LinearGradient(
+                                                              begin: Alignment.centerLeft,
+                                                              end: Alignment.centerRight,
+                                                              colors: [
+                                                                Colors.green,
+                                                                Colors.green,
+                                                                Colors.green,
+                                                              ])
+
+                                                      ),
+
+                                                      child: Text(doc['orderStatus'],
+
+                                                        style: TextStyle(color: Colors.white,
+                                                          fontSize: 20,
+                                                          fontFamily: 'Quicksand',
+                                                        ),
+                                                      ),
+
+                                                    ),
+                                                  ],
+                                                ),
+
+
+                                              ],
+                                            )
+                                        )
+                                    ),
+
+                                  ]
+                              );
+
+
+
+
+                          })
+
+                    ;
+                  }
+                },
+              )
+                  : selectedIndex == 2
+                  ?
+                  ///rejected
+              StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('orders')
+                    .where('buyerId',isEqualTo:FirebaseAuth.instance.currentUser!.uid )
+                    .where('orderStatus', isEqualTo: "Pending")
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return CircularProgressIndicator();
+                  } else {
+
+                    return
+                      ListView.builder(
+                          shrinkWrap: true,
+                          physics: ClampingScrollPhysics(),
+                          itemCount: snapshot.data!.docs.length,
+                          scrollDirection: Axis.vertical,
+                          itemBuilder: (context, index) {
+                            DocumentSnapshot doc = snapshot.data!.docs[index];
+                            return
+                              Column(
+                                  children: [
+                                    Padding(
+                                      padding: EdgeInsets.fromLTRB(20, 20, 20, 0 ),
+                                      child:Row(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children:[
+                                          Text(doc['Date Ordered'],
+                                            style: TextStyle(color: Colors.grey,
+                                              fontFamily: 'Quickand',
+
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
+                                    Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(15),
+                                        ),
+                                        child: Padding(
+                                            padding: const EdgeInsets.all(20),
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+
+                                                CircleAvatar(
+                                                  backgroundColor: Colors.blueAccent[100],
+                                                  backgroundImage: NetworkImage(doc['imageUrl']),
+                                                ),
+                                                const SizedBox(
+                                                  width: 15,
+                                                ),
+                                                Column(
+
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      doc['productName'].toUpperCase(),
+                                                      style: const TextStyle(
+                                                          fontSize: 12,
+                                                          color: SecondaryDarkGrey,
+                                                          fontWeight: FontWeight.w700),
+                                                    ),
+                                                    const SizedBox(
+                                                      height: 5,
+                                                    ),
+                                                    Row(
+                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Text(
+                                                          doc['Date Ordered'],
+                                                          style: const TextStyle(
+                                                              fontSize: 15,
+                                                              color: Colors.grey,
+                                                              fontWeight: FontWeight.w700),
+                                                        ),
+                                                        const SizedBox(
+                                                          width: 90,
+                                                        ),
+                                                        Text("+K " + doc['price'],
+                                                          style: const TextStyle(
+                                                              fontSize: 15,
+                                                              color:  Colors.amber,
+                                                              fontWeight: FontWeight.w700),)
+                                                      ],
+                                                    ),
+                                                    const SizedBox(
+                                                      height: 5,
+                                                    ),
+                                                    Container(
+                                                      alignment: Alignment.center,
+                                                      width: 100,
+                                                      decoration: BoxDecoration(
+                                                          borderRadius: BorderRadius.circular(5),
+
+                                                          gradient: LinearGradient(
+                                                              begin: Alignment.centerLeft,
+                                                              end: Alignment.centerRight,
+                                                              colors: [
+                                                                Colors.amber,
+                                                                Colors.amber,
+                                                                Colors.amber,
+                                                              ])
+
+                                                      ),
+
+                                                      child: Text(doc['orderStatus'],
+
+                                                        style: TextStyle(color: Colors.white,
+                                                          fontSize: 20,
+                                                          fontFamily: 'Quicksand',
+                                                        ),
+                                                      ),
+
+                                                    ),
+                                                  ],
+                                                ),
+
+
+                                              ],
+                                            )
+                                        )
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                  ]
+                              );
+                          })
+
+                    ;
+                  }
+                },
+              )
+                  : selectedIndex == 1
+                  ?
+
+                  ///completed
+              StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('orders')
+                    .where('buyerId',isEqualTo: FirebaseAuth.instance.currentUser!.uid )
+                    .where('orderStatus', isEqualTo: "Confirmed")
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return CircularProgressIndicator();
+                  } else {
+
+                    return
+                      ListView.builder(
+                          shrinkWrap: true,
+                          physics: ClampingScrollPhysics(),
+                          itemCount: snapshot.data!.docs.length,
+                          scrollDirection: Axis.vertical,
+                          itemBuilder: (context, index) {
+                            DocumentSnapshot doc = snapshot.data!.docs[index];
+                            return
+                              Column(
+                                  children: [
+                                    Padding(
+                                      padding: EdgeInsets.fromLTRB(20, 20, 20, 0 ),
+                                      child:Row(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children:[
+                                          Text(doc['Date Ordered'],
+                                            style: TextStyle(color: Colors.grey,
+                                              fontFamily: 'Quickand',
+
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
+                                    Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(15),
+                                        ),
+                                        child: Padding(
+                                            padding: const EdgeInsets.all(20),
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+
+                                                CircleAvatar(
+                                                  backgroundColor: Colors.blueAccent[100],
+                                                  backgroundImage: NetworkImage(doc['imageUrl']),
+                                                ),
+                                                const SizedBox(
+                                                  width: 15,
+                                                ),
+                                                Column(
+
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      doc['productName'].toUpperCase(),
+                                                      style: const TextStyle(
+                                                          fontSize: 12,
+                                                          color: SecondaryDarkGrey,
+                                                          fontWeight: FontWeight.w700),
+                                                    ),
+                                                    const SizedBox(
+                                                      height: 5,
+                                                    ),
+                                                    Row(
+                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Text(
+                                                          doc['Date Ordered'],
+                                                          style: const TextStyle(
+                                                              fontSize: 15,
+                                                              color: Colors.grey,
+                                                              fontWeight: FontWeight.w700),
+                                                        ),
+                                                        const SizedBox(
+                                                          width: 90,
+                                                        ),
+                                                        Text("+K " + doc['price'],
+                                                          style: const TextStyle(
+                                                              fontSize: 15,
+                                                              color:  Colors.green,
+                                                              fontWeight: FontWeight.w700),)
+                                                      ],
+                                                    ),
+                                                    const SizedBox(
+                                                      height: 5,
+                                                    ),
                                                     Container(
                                                       alignment: Alignment.center,
                                                       width: 100,
@@ -304,459 +617,820 @@ class _TransactionsState extends State<Transactions> {
                                     ),
                                   ]
                               );
-  })
+                          })
 
-  ;
-}
-},
-)
+                    ;
+                  }
+                },
+              )
+                  : selectedIndex == 3 ?
+/// refunded
+              StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('orders')
+                    .where('buyerId',isEqualTo: FirebaseAuth.instance.currentUser!.uid )
+                    .where('orderStatus', isEqualTo: "Cancelled")
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return CircularProgressIndicator();
+                  } else {
 
+                    return
+                      ListView.builder(
+                          shrinkWrap: true,
+                          physics: ClampingScrollPhysics(),
+                          itemCount: snapshot.data!.docs.length,
+                          scrollDirection: Axis.vertical,
+                          itemBuilder: (context, index) {
+                            DocumentSnapshot doc = snapshot.data!.docs[index];
+                            return
+                              Column(
+                                  children: [
+                                    Padding(
+                                      padding: EdgeInsets.fromLTRB(20, 20, 20, 0 ),
+                                      child:Row(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children:[
+                                          Text(doc['Date Ordered'],
+                                            style: TextStyle(color: Colors.grey,
+                                              fontFamily: 'Quickand',
 
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
 
+                                    Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(15),
+                                        ),
+                                        child: Padding(
+                                            padding: const EdgeInsets.all(20),
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
 
-                                  : selectedIndex == 2
-                                  ?
-                                  ///all for pending transactions
-                              StreamBuilder<QuerySnapshot>(
-                                stream: FirebaseFirestore.instance
-                                    .collection('orders')
-                                    .where('sellerId',isEqualTo: currentuser )
-                                .where('orderStatus', isEqualTo: "pending")
-                                    .snapshots(),
-                                builder: (context, snapshot) {
-                                  if (!snapshot.hasData) {
-                                    return CircularProgressIndicator();
-                                  } else {
+                                                CircleAvatar(
+                                                  backgroundColor: Colors.blueAccent[100],
+                                                  backgroundImage: NetworkImage(doc['imageUrl']),
+                                                ),
+                                                const SizedBox(
+                                                  width: 15,
+                                                ),
+                                                Column(
 
-                                    return
-                                      ListView.builder(
-                                          shrinkWrap: true,
-                                          physics: ClampingScrollPhysics(),
-                                          itemCount: snapshot.data!.docs.length,
-                                          scrollDirection: Axis.vertical,
-                                          itemBuilder: (context, index) {
-                                            DocumentSnapshot doc = snapshot.data!.docs[index];
-                                            return
-                                              Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
-                                                    Padding(
-                                                      padding: EdgeInsets.fromLTRB(20, 20, 20, 0 ),
-                                                      child:Row(
-                                                        mainAxisAlignment: MainAxisAlignment.start,
-                                                        children:[
-                                                          Text(doc['Date Ordered'],
-                                                            style: TextStyle(color: Colors.grey,
-                                                              fontFamily: 'Quickand',
-
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-
-                                                    Container(
-                                                        decoration: BoxDecoration(
-                                                          color: Colors.white,
-                                                          borderRadius: BorderRadius.circular(15),
-                                                        ),
-                                                        child: Padding(
-                                                            padding: const EdgeInsets.all(20),
-                                                            child: Row(
-                                                              mainAxisAlignment: MainAxisAlignment.start,
-                                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                                              children: [
-
-                                                                CircleAvatar(
-                                                                  backgroundColor: Colors.blueAccent[100],
-                                                                  backgroundImage: NetworkImage(doc['imageUrl']),
-                                                                ),
-                                                                const SizedBox(
-                                                                  width: 15,
-                                                                ),
-                                                                Column(
-
-                                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                                  children: [
-                                                                    Text(
-                                                                      doc['productName'].toUpperCase(),
-                                                                      style: const TextStyle(
-                                                                          fontSize: 12,
-                                                                          color: SecondaryDarkGrey,
-                                                                          fontWeight: FontWeight.w700),
-                                                                    ),
-                                                                    const SizedBox(
-                                                                      height: 5,
-                                                                    ),
-                                                                    Row(
-                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                                      children: [
-                                                                        Text(
-                                                                          doc['Date Ordered'],
-                                                                          style: const TextStyle(
-                                                                              fontSize: 15,
-                                                                              color: Colors.grey,
-                                                                              fontWeight: FontWeight.w700),
-                                                                        ),
-                                                                        const SizedBox(
-                                                                          width: 90,
-                                                                        ),
-                                                                        Text("+K " + doc['price'],
-                                                                          style: const TextStyle(
-                                                                              fontSize: 15,
-                                                                              color:  Colors.amber,
-                                                                              fontWeight: FontWeight.w700),)
-                                                                      ],
-                                                                    ),
-                                                                    const SizedBox(
-                                                                      height: 5,
-                                                                    ),
-                                                                    Container(
-                                                                      alignment: Alignment.center,
-                                                                      width: 100,
-                                                                      decoration: BoxDecoration(
-                                                                          borderRadius: BorderRadius.circular(5),
-
-                                                                          gradient: LinearGradient(
-                                                                              begin: Alignment.centerLeft,
-                                                                              end: Alignment.centerRight,
-                                                                              colors: [
-                                                                                Colors.amber,
-                                                                                Colors.amber,
-                                                                                Colors.amber,
-                                                                              ])
-
-                                                                      ),
-
-                                                                      child: Text(doc['orderStatus'],
-
-                                                                        style: TextStyle(color: Colors.white,
-                                                                          fontSize: 20,
-                                                                          fontFamily: 'Quicksand',
-                                                                        ),
-                                                                      ),
-
-                                                                    ),
-                                                                  ],
-                                                                ),
-
-
-                                                              ],
-                                                            )
-                                                        )
+                                                    Text(
+                                                      doc['productName'].toUpperCase(),
+                                                      style: const TextStyle(
+                                                          fontSize: 12,
+                                                          color: SecondaryDarkGrey,
+                                                          fontWeight: FontWeight.w700),
                                                     ),
                                                     const SizedBox(
-                                                      height: 10,
+                                                      height: 5,
                                                     ),
-                                                  ]
-                                              );
-                                          })
-
-                                    ;
-                                  }
-                                },
-                              )
-                                  : selectedIndex == 1
-                                  ?
-
-                                  ///completed
-                              StreamBuilder<QuerySnapshot>(
-                                stream: FirebaseFirestore.instance
-                                    .collection('orders')
-                                    .where('sellerId',isEqualTo: currentuser )
-                                    .where('orderStatus', isEqualTo: "confirmed")
-                                    .snapshots(),
-                                builder: (context, snapshot) {
-                                  if (!snapshot.hasData) {
-                                    return CircularProgressIndicator();
-                                  } else {
-
-                                    return
-                                      ListView.builder(
-                                          shrinkWrap: true,
-                                          physics: ClampingScrollPhysics(),
-                                          itemCount: snapshot.data!.docs.length,
-                                          scrollDirection: Axis.vertical,
-                                          itemBuilder: (context, index) {
-                                            DocumentSnapshot doc = snapshot.data!.docs[index];
-                                            return
-                                              Column(
-                                                  children: [
-                                                    Padding(
-                                                      padding: EdgeInsets.fromLTRB(20, 20, 20, 0 ),
-                                                      child:Row(
-                                                        mainAxisAlignment: MainAxisAlignment.start,
-                                                        children:[
-                                                          Text(doc['Date Ordered'],
-                                                            style: TextStyle(color: Colors.grey,
-                                                              fontFamily: 'Quickand',
-
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-
-                                                    Container(
-                                                        decoration: BoxDecoration(
-                                                          color: Colors.white,
-                                                          borderRadius: BorderRadius.circular(15),
+                                                    Row(
+                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Text(
+                                                          doc['Date Ordered'],
+                                                          style: const TextStyle(
+                                                              fontSize: 15,
+                                                              color: Colors.grey,
+                                                              fontWeight: FontWeight.w700),
                                                         ),
-                                                        child: Padding(
-                                                            padding: const EdgeInsets.all(20),
-                                                            child: Row(
-                                                              mainAxisAlignment: MainAxisAlignment.start,
-                                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                                              children: [
-
-                                                                CircleAvatar(
-                                                                  backgroundColor: Colors.blueAccent[100],
-                                                                  backgroundImage: NetworkImage(doc['imageUrl']),
-                                                                ),
-                                                                const SizedBox(
-                                                                  width: 15,
-                                                                ),
-                                                                Column(
-
-                                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                                  children: [
-                                                                    Text(
-                                                                      doc['productName'].toUpperCase(),
-                                                                      style: const TextStyle(
-                                                                          fontSize: 12,
-                                                                          color: SecondaryDarkGrey,
-                                                                          fontWeight: FontWeight.w700),
-                                                                    ),
-                                                                    const SizedBox(
-                                                                      height: 5,
-                                                                    ),
-                                                                    Row(
-                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                                      children: [
-                                                                        Text(
-                                                                          doc['Date Ordered'],
-                                                                          style: const TextStyle(
-                                                                              fontSize: 15,
-                                                                              color: Colors.grey,
-                                                                              fontWeight: FontWeight.w700),
-                                                                        ),
-                                                                        const SizedBox(
-                                                                          width: 90,
-                                                                        ),
-                                                                        Text("+K " + doc['price'],
-                                                                          style: const TextStyle(
-                                                                              fontSize: 15,
-                                                                              color:  Colors.green,
-                                                                              fontWeight: FontWeight.w700),)
-                                                                      ],
-                                                                    ),
-                                                                    const SizedBox(
-                                                                      height: 5,
-                                                                    ),
-                                                                    Container(
-                                                                      alignment: Alignment.center,
-                                                                      width: 100,
-                                                                      decoration: BoxDecoration(
-                                                                          borderRadius: BorderRadius.circular(5),
-
-                                                                          gradient: LinearGradient(
-                                                                              begin: Alignment.centerLeft,
-                                                                              end: Alignment.centerRight,
-                                                                              colors: [
-                                                                                Colors.green,
-                                                                                Colors.green,
-                                                                                Colors.green,
-                                                                              ])
-
-                                                                      ),
-
-                                                                      child: Text(doc['orderStatus'],
-
-                                                                        style: TextStyle(color: Colors.white,
-                                                                          fontSize: 20,
-                                                                          fontFamily: 'Quicksand',
-                                                                        ),
-                                                                      ),
-
-                                                                    ),
-                                                                  ],
-                                                                ),
-
-
-                                                              ],
-                                                            )
-                                                        )
+                                                        const SizedBox(
+                                                          width: 90,
+                                                        ),
+                                                        Text("-K " + doc['price'],
+                                                          style: const TextStyle(
+                                                              fontSize: 15,
+                                                              color:  Colors.red,
+                                                              fontWeight: FontWeight.w700),)
+                                                      ],
                                                     ),
                                                     const SizedBox(
-                                                      height: 10,
+                                                      height: 5,
                                                     ),
-                                                  ]
-                                              );
-                                          })
-
-                                    ;
-                                  }
-                                },
-                              )
-                          :
-                              selectedIndex == 3 ?
-                                  ///all for refunded transactions
-                              StreamBuilder<QuerySnapshot>(
-                                stream: FirebaseFirestore.instance
-                                    .collection('orders')
-                                    .where('sellerId',isEqualTo: currentuser )
-                                    .where('orderStatus', isEqualTo: "cancelled")
-                                    .snapshots(),
-                                builder: (context, snapshot) {
-                                  if (!snapshot.hasData) {
-                                    return CircularProgressIndicator();
-                                  } else {
-
-                                    return
-                                      ListView.builder(
-                                          shrinkWrap: true,
-                                          physics: ClampingScrollPhysics(),
-                                          itemCount: snapshot.data!.docs.length,
-                                          scrollDirection: Axis.vertical,
-                                          itemBuilder: (context, index) {
-                                            DocumentSnapshot doc = snapshot.data!.docs[index];
-                                            return
-                                              Column(
-                                                  children: [
-                                                    Padding(
-                                                      padding: EdgeInsets.fromLTRB(20, 20, 20, 0 ),
-                                                      child:Row(
-                                                        mainAxisAlignment: MainAxisAlignment.start,
-                                                        children:[
-                                                          Text(doc['Date Ordered'],
-                                                            style: TextStyle(color: Colors.grey,
-                                                              fontFamily: 'Quickand',
-
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-
                                                     Container(
-                                                        decoration: BoxDecoration(
-                                                          color: Colors.white,
-                                                          borderRadius: BorderRadius.circular(15),
+                                                      alignment: Alignment.center,
+                                                      width: 100,
+                                                      decoration: BoxDecoration(
+                                                          borderRadius: BorderRadius.circular(5),
+
+                                                          gradient: LinearGradient(
+                                                              begin: Alignment.centerLeft,
+                                                              end: Alignment.centerRight,
+                                                              colors: [
+                                                                Colors.red,
+                                                                Colors.red,
+                                                                Colors.red,
+                                                              ])
+
+                                                      ),
+
+                                                      child: Text(doc['orderStatus'],
+
+                                                        style: TextStyle(color: Colors.white,
+                                                          fontSize: 20,
+                                                          fontFamily: 'Quicksand',
                                                         ),
-                                                        child: Padding(
-                                                            padding: const EdgeInsets.all(20),
-                                                            child: Row(
-                                                              mainAxisAlignment: MainAxisAlignment.start,
-                                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                                              children: [
+                                                      ),
 
-                                                                CircleAvatar(
-                                                                  backgroundColor: Colors.blueAccent[100],
-                                                                  backgroundImage: NetworkImage(doc['imageUrl']),
-                                                                ),
-                                                                const SizedBox(
-                                                                  width: 15,
-                                                                ),
-                                                                Column(
-
-                                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                                  children: [
-                                                                    Text(
-                                                                      doc['productName'].toUpperCase(),
-                                                                      style: const TextStyle(
-                                                                          fontSize: 12,
-                                                                          color: SecondaryDarkGrey,
-                                                                          fontWeight: FontWeight.w700),
-                                                                    ),
-                                                                    const SizedBox(
-                                                                      height: 5,
-                                                                    ),
-                                                                    Row(
-                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                                      children: [
-                                                                        Text(
-                                                                          doc['Date Ordered'],
-                                                                          style: const TextStyle(
-                                                                              fontSize: 15,
-                                                                              color: Colors.grey,
-                                                                              fontWeight: FontWeight.w700),
-                                                                        ),
-                                                                        const SizedBox(
-                                                                          width: 90,
-                                                                        ),
-                                                                        Text("-K " + doc['price'],
-                                                                          style: const TextStyle(
-                                                                              fontSize: 15,
-                                                                              color:  Colors.red,
-                                                                              fontWeight: FontWeight.w700),)
-                                                                      ],
-                                                                    ),
-                                                                    const SizedBox(
-                                                                      height: 5,
-                                                                    ),
-                                                                    Container(
-                                                                      alignment: Alignment.center,
-                                                                      width: 100,
-                                                                      decoration: BoxDecoration(
-                                                                          borderRadius: BorderRadius.circular(5),
-
-                                                                          gradient: LinearGradient(
-                                                                              begin: Alignment.centerLeft,
-                                                                              end: Alignment.centerRight,
-                                                                              colors: [
-                                                                                Colors.red,
-                                                                                Colors.red,
-                                                                                Colors.red,
-                                                                              ])
-
-                                                                      ),
-
-                                                                      child: Text(doc['orderStatus'],
-
-                                                                        style: TextStyle(color: Colors.white,
-                                                                          fontSize: 20,
-                                                                          fontFamily: 'Quicksand',
-                                                                        ),
-                                                                      ),
-
-                                                                    ),
-                                                                  ],
-                                                                ),
-
-
-                                                              ],
-                                                            )
-                                                        )
                                                     ),
-                                                    const SizedBox(
-                                                      height: 10,
-                                                    ),
-                                                  ]
-                                              );
-                                          })
-
-                                    ;
-                                  }
-                                },
-                              )
-                                  :
-                              SizedBox(
-                                height: MediaQuery.of(context).size.height -
-                                    MediaQuery.of(context).padding.top -
-                                    MediaQuery.of(context).padding.bottom -
-                                    50,
-
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                                                  ],
+                                                ),
 
 
-                    ]))]),
+                                              ],
+                                            )
+                                        )
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                  ]
+                              );
+                          })
+
+                    ;
+                  }
+                },
+              )
+                  : SizedBox(
+                height: MediaQuery.of(context).size.height -
+                    MediaQuery.of(context).padding.top -
+                    MediaQuery.of(context).padding.bottom -
+                    50,
+
+              ),
+            ],
+          ),
+        )
+
+
+      ,/* Container(
+            child: new ListView(
+                children: <Widget>[
+                  Column(
+                      children: <Widget>[
+
+                        BottomSection()
+
+                      ])])),*/
+
     );
+
+   /*Container(
+
+      margin: const EdgeInsets.all(5),
+      width: double.infinity,
+      height: double.infinity,
+      child: Column(
+        children: [
+
+
+
+
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+                children: [
+                  Expanded(
+                      child:
+
+
+                      ListView(
+                          children: [
+
+                            Expanded(
+                              child: Container(
+                                color: Colors.white,
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      color: Colors.white,
+                                      child: Row(
+                                        children: [
+
+                                          Expanded(
+                                            child: SizedBox(
+                                              height: 25,
+                                              child: ListView.builder(
+                                                scrollDirection: Axis.horizontal,
+                                                itemCount: categories.length,
+                                                itemBuilder: (context, index) => buildCategory(index),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 7,
+                                    ),
+                                    current == 0
+                                        ?///all for products and orders
+
+                                    StreamBuilder<QuerySnapshot>(
+                                      stream: FirebaseFirestore.instance
+                                          .collection('orders')
+                                          .where('sellerId',isEqualTo: currentuser )
+                                          .snapshots(),
+                                      builder: (context, snapshot) {
+                                        if (!snapshot.hasData) {
+                                          return CircularProgressIndicator();
+                                        } else {
+
+                                          return
+                                            ListView.builder(
+                                                shrinkWrap: true,
+                                                physics: ClampingScrollPhysics(),
+                                                itemCount: snapshot.data!.docs.length,
+                                                scrollDirection: Axis.vertical,
+                                                itemBuilder: (context, index) {
+                                                  DocumentSnapshot doc = snapshot.data!.docs[index];
+                                                  return
+                                                    Column(
+                                                        children: [
+                                                          Padding(
+                                                            padding: EdgeInsets.fromLTRB(20, 20, 20, 0 ),
+                                                            child:Row(
+                                                              mainAxisAlignment: MainAxisAlignment.start,
+                                                              children:[
+                                                                Text(doc['Date Ordered'],
+                                                                  style: TextStyle(color: Colors.grey,
+                                                                    fontFamily: 'Quickand',
+
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+
+                                                          Container(
+                                                              decoration: BoxDecoration(
+                                                                color: Colors.white,
+                                                                borderRadius: BorderRadius.circular(15),
+                                                              ),
+                                                              child: Padding(
+                                                                  padding: const EdgeInsets.all(20),
+                                                                  child: Row(
+                                                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                                    children: [
+
+                                                                      CircleAvatar(
+                                                                        backgroundColor: Colors.blueAccent[100],
+                                                                        backgroundImage: NetworkImage(doc['imageUrl']),
+                                                                      ),
+                                                                      const SizedBox(
+                                                                        width: 15,
+                                                                      ),
+                                                                      Column(
+
+                                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                                        children: [
+                                                                          Text(
+                                                                            doc['productName'].toUpperCase(),
+                                                                            style: const TextStyle(
+                                                                                fontSize: 12,
+                                                                                color: SecondaryDarkGrey,
+                                                                                fontWeight: FontWeight.w700),
+                                                                          ),
+                                                                          const SizedBox(
+                                                                            height: 5,
+                                                                          ),
+                                                                          Row(
+                                                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                                            children: [
+                                                                              Text(
+                                                                                doc['Date Ordered'],
+                                                                                style: const TextStyle(
+                                                                                    fontSize: 15,
+                                                                                    color: Colors.grey,
+                                                                                    fontWeight: FontWeight.w700),
+                                                                              ),
+                                                                              const SizedBox(
+                                                                                width: 90,
+                                                                              ),
+                                                                              Text("K" + doc['price'],
+                                                                                style: const TextStyle(
+                                                                                    fontSize: 15,
+                                                                                    color:  Colors.green,
+                                                                                    fontWeight: FontWeight.w700),)
+                                                                            ],
+                                                                          ),
+                                                                          const SizedBox(
+                                                                            height: 5,
+                                                                          ),
+                                                                          Container(
+                                                                            alignment: Alignment.center,
+                                                                            width: 100,
+                                                                            decoration: BoxDecoration(
+                                                                                borderRadius: BorderRadius.circular(5),
+
+                                                                                gradient: LinearGradient(
+                                                                                    begin: Alignment.centerLeft,
+                                                                                    end: Alignment.centerRight,
+                                                                                    colors: [
+                                                                                      Colors.green,
+                                                                                      Colors.green,
+                                                                                      Colors.green,
+                                                                                    ])
+
+                                                                            ),
+
+                                                                            child: Text(doc['orderStatus'],
+
+                                                                              style: TextStyle(color: Colors.white,
+                                                                                fontSize: 20,
+                                                                                fontFamily: 'Quicksand',
+                                                                              ),
+                                                                            ),
+
+                                                                          ),
+                                                                        ],
+                                                                      ),
+
+
+                                                                    ],
+                                                                  )
+                                                              )
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 10,
+                                                          ),
+                                                        ]
+                                                    );
+                                                })
+
+                                          ;
+                                        }
+                                      },
+                                    )
+
+
+
+
+                                        : current == 2
+                                        ?
+                                    ///all for pending transactions
+                                    StreamBuilder<QuerySnapshot>(
+                                      stream: FirebaseFirestore.instance
+                                          .collection('orders')
+                                          .where('sellerId',isEqualTo: currentuser )
+                                          .where('orderStatus', isEqualTo: "pending")
+                                          .snapshots(),
+                                      builder: (context, snapshot) {
+                                        if (!snapshot.hasData) {
+                                          return CircularProgressIndicator();
+                                        } else {
+
+                                          return
+                                            ListView.builder(
+                                                shrinkWrap: true,
+                                                physics: ClampingScrollPhysics(),
+                                                itemCount: snapshot.data!.docs.length,
+                                                scrollDirection: Axis.vertical,
+                                                itemBuilder: (context, index) {
+                                                  DocumentSnapshot doc = snapshot.data!.docs[index];
+                                                  return
+                                                    Column(
+                                                        children: [
+                                                          Padding(
+                                                            padding: EdgeInsets.fromLTRB(20, 20, 20, 0 ),
+                                                            child:Row(
+                                                              mainAxisAlignment: MainAxisAlignment.start,
+                                                              children:[
+                                                                Text(doc['Date Ordered'],
+                                                                  style: TextStyle(color: Colors.grey,
+                                                                    fontFamily: 'Quickand',
+
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+
+                                                          Container(
+                                                              decoration: BoxDecoration(
+                                                                color: Colors.white,
+                                                                borderRadius: BorderRadius.circular(15),
+                                                              ),
+                                                              child: Padding(
+                                                                  padding: const EdgeInsets.all(20),
+                                                                  child: Row(
+                                                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                                    children: [
+
+                                                                      CircleAvatar(
+                                                                        backgroundColor: Colors.blueAccent[100],
+                                                                        backgroundImage: NetworkImage(doc['imageUrl']),
+                                                                      ),
+                                                                      const SizedBox(
+                                                                        width: 15,
+                                                                      ),
+                                                                      Column(
+
+                                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                                        children: [
+                                                                          Text(
+                                                                            doc['productName'].toUpperCase(),
+                                                                            style: const TextStyle(
+                                                                                fontSize: 12,
+                                                                                color: SecondaryDarkGrey,
+                                                                                fontWeight: FontWeight.w700),
+                                                                          ),
+                                                                          const SizedBox(
+                                                                            height: 5,
+                                                                          ),
+                                                                          Row(
+                                                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                                            children: [
+                                                                              Text(
+                                                                                doc['Date Ordered'],
+                                                                                style: const TextStyle(
+                                                                                    fontSize: 15,
+                                                                                    color: Colors.grey,
+                                                                                    fontWeight: FontWeight.w700),
+                                                                              ),
+                                                                              const SizedBox(
+                                                                                width: 90,
+                                                                              ),
+                                                                              Text("+K " + doc['price'],
+                                                                                style: const TextStyle(
+                                                                                    fontSize: 15,
+                                                                                    color:  Colors.amber,
+                                                                                    fontWeight: FontWeight.w700),)
+                                                                            ],
+                                                                          ),
+                                                                          const SizedBox(
+                                                                            height: 5,
+                                                                          ),
+                                                                          Container(
+                                                                            alignment: Alignment.center,
+                                                                            width: 100,
+                                                                            decoration: BoxDecoration(
+                                                                                borderRadius: BorderRadius.circular(5),
+
+                                                                                gradient: LinearGradient(
+                                                                                    begin: Alignment.centerLeft,
+                                                                                    end: Alignment.centerRight,
+                                                                                    colors: [
+                                                                                      Colors.amber,
+                                                                                      Colors.amber,
+                                                                                      Colors.amber,
+                                                                                    ])
+
+                                                                            ),
+
+                                                                            child: Text(doc['orderStatus'],
+
+                                                                              style: TextStyle(color: Colors.white,
+                                                                                fontSize: 20,
+                                                                                fontFamily: 'Quicksand',
+                                                                              ),
+                                                                            ),
+
+                                                                          ),
+                                                                        ],
+                                                                      ),
+
+
+                                                                    ],
+                                                                  )
+                                                              )
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 10,
+                                                          ),
+                                                        ]
+                                                    );
+                                                })
+
+                                          ;
+                                        }
+                                      },
+                                    )
+                                        : current == 1
+                                        ?
+
+                                    ///completed
+                                    StreamBuilder<QuerySnapshot>(
+                                      stream: FirebaseFirestore.instance
+                                          .collection('orders')
+                                          .where('sellerId',isEqualTo: currentuser )
+                                          .where('orderStatus', isEqualTo: "confirmed")
+                                          .snapshots(),
+                                      builder: (context, snapshot) {
+                                        if (!snapshot.hasData) {
+                                          return CircularProgressIndicator();
+                                        } else {
+
+                                          return
+                                            ListView.builder(
+                                                shrinkWrap: true,
+                                                physics: ClampingScrollPhysics(),
+                                                itemCount: snapshot.data!.docs.length,
+                                                scrollDirection: Axis.vertical,
+                                                itemBuilder: (context, index) {
+                                                  DocumentSnapshot doc = snapshot.data!.docs[index];
+                                                  return
+                                                    Column(
+                                                        children: [
+                                                          Padding(
+                                                            padding: EdgeInsets.fromLTRB(20, 20, 20, 0 ),
+                                                            child:Row(
+                                                              mainAxisAlignment: MainAxisAlignment.start,
+                                                              children:[
+                                                                Text(doc['Date Ordered'],
+                                                                  style: TextStyle(color: Colors.grey,
+                                                                    fontFamily: 'Quickand',
+
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+
+                                                          Container(
+                                                              decoration: BoxDecoration(
+                                                                color: Colors.white,
+                                                                borderRadius: BorderRadius.circular(15),
+                                                              ),
+                                                              child: Padding(
+                                                                  padding: const EdgeInsets.all(20),
+                                                                  child: Row(
+                                                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                                    children: [
+
+                                                                      CircleAvatar(
+                                                                        backgroundColor: Colors.blueAccent[100],
+                                                                        backgroundImage: NetworkImage(doc['imageUrl']),
+                                                                      ),
+                                                                      const SizedBox(
+                                                                        width: 15,
+                                                                      ),
+                                                                      Column(
+
+                                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                                        children: [
+                                                                          Text(
+                                                                            doc['productName'].toUpperCase(),
+                                                                            style: const TextStyle(
+                                                                                fontSize: 12,
+                                                                                color: SecondaryDarkGrey,
+                                                                                fontWeight: FontWeight.w700),
+                                                                          ),
+                                                                          const SizedBox(
+                                                                            height: 5,
+                                                                          ),
+                                                                          Row(
+                                                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                                            children: [
+                                                                              Text(
+                                                                                doc['Date Ordered'],
+                                                                                style: const TextStyle(
+                                                                                    fontSize: 15,
+                                                                                    color: Colors.grey,
+                                                                                    fontWeight: FontWeight.w700),
+                                                                              ),
+                                                                              const SizedBox(
+                                                                                width: 90,
+                                                                              ),
+                                                                              Text("+K " + doc['price'],
+                                                                                style: const TextStyle(
+                                                                                    fontSize: 15,
+                                                                                    color:  Colors.green,
+                                                                                    fontWeight: FontWeight.w700),)
+                                                                            ],
+                                                                          ),
+                                                                          const SizedBox(
+                                                                            height: 5,
+                                                                          ),
+                                                                          Container(
+                                                                            alignment: Alignment.center,
+                                                                            width: 100,
+                                                                            decoration: BoxDecoration(
+                                                                                borderRadius: BorderRadius.circular(5),
+
+                                                                                gradient: LinearGradient(
+                                                                                    begin: Alignment.centerLeft,
+                                                                                    end: Alignment.centerRight,
+                                                                                    colors: [
+                                                                                      Colors.green,
+                                                                                      Colors.green,
+                                                                                      Colors.green,
+                                                                                    ])
+
+                                                                            ),
+
+                                                                            child: Text(doc['orderStatus'],
+
+                                                                              style: TextStyle(color: Colors.white,
+                                                                                fontSize: 20,
+                                                                                fontFamily: 'Quicksand',
+                                                                              ),
+                                                                            ),
+
+                                                                          ),
+                                                                        ],
+                                                                      ),
+
+
+                                                                    ],
+                                                                  )
+                                                              )
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 10,
+                                                          ),
+                                                        ]
+                                                    );
+                                                })
+
+                                          ;
+                                        }
+                                      },
+                                    )
+                                        :
+                                    current == 3 ?
+                                    ///all for refunded transactions
+                                    StreamBuilder<QuerySnapshot>(
+                                      stream: FirebaseFirestore.instance
+                                          .collection('orders')
+                                          .where('sellerId',isEqualTo: currentuser )
+                                          .where('orderStatus', isEqualTo: "cancelled")
+                                          .snapshots(),
+                                      builder: (context, snapshot) {
+                                        if (!snapshot.hasData) {
+                                          return CircularProgressIndicator();
+                                        } else {
+
+                                          return
+                                            ListView.builder(
+                                                shrinkWrap: true,
+                                                physics: ClampingScrollPhysics(),
+                                                itemCount: snapshot.data!.docs.length,
+                                                scrollDirection: Axis.vertical,
+                                                itemBuilder: (context, index) {
+                                                  DocumentSnapshot doc = snapshot.data!.docs[index];
+                                                  return
+                                                    Column(
+                                                        children: [
+                                                          Padding(
+                                                            padding: EdgeInsets.fromLTRB(20, 20, 20, 0 ),
+                                                            child:Row(
+                                                              mainAxisAlignment: MainAxisAlignment.start,
+                                                              children:[
+                                                                Text(doc['Date Ordered'],
+                                                                  style: TextStyle(color: Colors.grey,
+                                                                    fontFamily: 'Quickand',
+
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+
+                                                          Container(
+                                                              decoration: BoxDecoration(
+                                                                color: Colors.white,
+                                                                borderRadius: BorderRadius.circular(15),
+                                                              ),
+                                                              child: Padding(
+                                                                  padding: const EdgeInsets.all(20),
+                                                                  child: Row(
+                                                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                                    children: [
+
+                                                                      CircleAvatar(
+                                                                        backgroundColor: Colors.blueAccent[100],
+                                                                        backgroundImage: NetworkImage(doc['imageUrl']),
+                                                                      ),
+                                                                      const SizedBox(
+                                                                        width: 15,
+                                                                      ),
+                                                                      Column(
+
+                                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                                        children: [
+                                                                          Text(
+                                                                            doc['productName'].toUpperCase(),
+                                                                            style: const TextStyle(
+                                                                                fontSize: 12,
+                                                                                color: SecondaryDarkGrey,
+                                                                                fontWeight: FontWeight.w700),
+                                                                          ),
+                                                                          const SizedBox(
+                                                                            height: 5,
+                                                                          ),
+                                                                          Row(
+                                                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                                            children: [
+                                                                              Text(
+                                                                                doc['Date Ordered'],
+                                                                                style: const TextStyle(
+                                                                                    fontSize: 15,
+                                                                                    color: Colors.grey,
+                                                                                    fontWeight: FontWeight.w700),
+                                                                              ),
+                                                                              const SizedBox(
+                                                                                width: 90,
+                                                                              ),
+                                                                              Text("-K " + doc['price'],
+                                                                                style: const TextStyle(
+                                                                                    fontSize: 15,
+                                                                                    color:  Colors.red,
+                                                                                    fontWeight: FontWeight.w700),)
+                                                                            ],
+                                                                          ),
+                                                                          const SizedBox(
+                                                                            height: 5,
+                                                                          ),
+                                                                          Container(
+                                                                            alignment: Alignment.center,
+                                                                            width: 100,
+                                                                            decoration: BoxDecoration(
+                                                                                borderRadius: BorderRadius.circular(5),
+
+                                                                                gradient: LinearGradient(
+                                                                                    begin: Alignment.centerLeft,
+                                                                                    end: Alignment.centerRight,
+                                                                                    colors: [
+                                                                                      Colors.red,
+                                                                                      Colors.red,
+                                                                                      Colors.red,
+                                                                                    ])
+
+                                                                            ),
+
+                                                                            child: Text(doc['orderStatus'],
+
+                                                                              style: TextStyle(color: Colors.white,
+                                                                                fontSize: 20,
+                                                                                fontFamily: 'Quicksand',
+                                                                              ),
+                                                                            ),
+
+                                                                          ),
+                                                                        ],
+                                                                      ),
+
+
+                                                                    ],
+                                                                  )
+                                                              )
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 10,
+                                                          ),
+                                                        ]
+                                                    );
+                                                })
+
+                                          ;
+                                        }
+                                      },
+                                    )
+                                        :
+                                    SizedBox(
+                                      height: MediaQuery.of(context).size.height -
+                                          MediaQuery.of(context).padding.top -
+                                          MediaQuery.of(context).padding.bottom -
+                                          50,
+
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+
+                          ]))]),
+          )
+
+        ],
+      ),
+    );*/
+
+
+
   }
 }
 
@@ -766,6 +1440,9 @@ class Summary extends StatefulWidget {
   @override
   State<Summary> createState() => _Summary();
 }
+
+
+
 class _Summary extends State<Summary> {
 
   final Repository repo = Repository();
@@ -810,8 +1487,8 @@ class _Summary extends State<Summary> {
                         StreamBuilder<QuerySnapshot>(
                           stream: FirebaseFirestore.instance
                               .collection('orders')
-                              .where('sellerId',isEqualTo: currentuser )
-                              .where('orderStatus', isEqualTo: "confirmed")
+                              .where('buyerId',isEqualTo: currentuser )
+                              .where('orderStatus', isEqualTo: "Confirmed")
                               .snapshots(),
                           builder:
                               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
@@ -828,7 +1505,7 @@ class _Summary extends State<Summary> {
                                total = sumTotal + sumTotal;
                                 // make sure you create the variable sumTotal somewhere
                               });
-                              return Text("K ${total}",
+                              return Text("K ${total}.00",
                                   style: const TextStyle(
                                       fontSize: textLarge, fontWeight: FontWeight.bold));
                             }
@@ -852,8 +1529,8 @@ class _Summary extends State<Summary> {
                         StreamBuilder<QuerySnapshot>(
                           stream: FirebaseFirestore.instance
                               .collection('orders')
-                              .where('sellerId',isEqualTo: currentuser )
-                              .where('orderStatus', isEqualTo: "pending")
+                              .where('buyerId',isEqualTo: currentuser )
+                              .where('orderStatus', isEqualTo: "Pending")
                               .snapshots(),
                           builder:
                               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
@@ -870,7 +1547,7 @@ class _Summary extends State<Summary> {
                                 total2 = sumTotal2 + sumTotal2;
                                 // make sure you create the variable sumTotal somewhere
                               });
-                              return Text("K ${total2}",
+                              return Text("K ${total2}.00",
                                   style: const TextStyle(
                                       fontSize: textLarge, fontWeight: FontWeight.bold));
                             }
@@ -894,8 +1571,8 @@ class _Summary extends State<Summary> {
                         StreamBuilder<QuerySnapshot>(
                           stream: FirebaseFirestore.instance
                               .collection('orders')
-                              .where('sellerId',isEqualTo: currentuser )
-                              .where('orderStatus', isEqualTo: "cancelled")
+                              .where('buyerId',isEqualTo: currentuser )
+                              .where('orderStatus', isEqualTo: "Cancelled")
                               .snapshots(),
                           builder:
                               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
@@ -910,9 +1587,11 @@ class _Summary extends State<Summary> {
 
                                 sumTotal3 = int.tryParse(doc['price']);
                                 total3 = sumTotal3 + sumTotal3;
+
+//${total3}
                                 // make sure you create the variable sumTotal somewhere
                               });
-                              return Text("K ${total3}",
+                              return Text("K 0.00",
                                   style: const TextStyle(
                                       fontSize: textLarge, fontWeight: FontWeight.bold));
                             }

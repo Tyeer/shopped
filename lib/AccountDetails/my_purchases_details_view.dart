@@ -16,6 +16,7 @@ class PurchaseDetailView extends StatefulWidget {
 }
 
 class _PurchaseDetailViewState extends State<PurchaseDetailView> {
+  String addressid = "";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,6 +56,10 @@ class _PurchaseDetailViewState extends State<PurchaseDetailView> {
                       scrollDirection: Axis.vertical,
                       itemBuilder: (context, index) {
                         DocumentSnapshot doc = snapshot.data!.docs[index];
+
+
+                        addressid = doc['addressId'];
+
                         return
 
                           Container(child: Column(
@@ -164,50 +169,90 @@ class _PurchaseDetailViewState extends State<PurchaseDetailView> {
                                       ),
 
                                       SizedBox(height: 10,),
-                                      Container(
-                                        width: double.infinity,
-                                        padding: const EdgeInsets.all(10),
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(5),
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  "Chitawira",
-                                                  style: const TextStyle(
-                                                      fontSize: textMedium,
-                                                      fontWeight: FontWeight.w400),
-                                                ),
-                                                Text(
-                                                  "+265 99 806 8724",
-                                                  style: const TextStyle(
-                                                      fontSize: textMedium,
-                                                      fontWeight: FontWeight.w400),
-                                                ),
-                                                Text(
-                                                  "Private Bag 11",
-                                                  style: const TextStyle(
-                                                      fontSize: textMedium,
-                                                      fontWeight: FontWeight.w400),
-                                                ),
-                                                Text(
-                                                  'Blantyre',
-                                                  style: const TextStyle(
-                                                      fontSize: textMedium,
-                                                      fontWeight: FontWeight.w400),
-                                                ),
-                                              ],
-                                            ),
-                                        
+
+                                      StreamBuilder<QuerySnapshot>  (
+                                          stream: FirebaseFirestore.instance
+                                              .collection('address').
+                                          where('Aid', isEqualTo: addressid)
+
+                                              .snapshots(),
+                                          builder: (context, snapshot) {
+
+                                            if (snapshot.hasError) {
+                                              return Center(child: Text("Something went wrong"));
+                                            }
+                                            else if (!snapshot.hasData) {
+                                              return CircularProgressIndicator();
+                                            }
+
+                                            else {
+                                              return ListView.builder(
+                                                  shrinkWrap: true,
+                                                  physics: ClampingScrollPhysics(),
+                                                  itemCount: snapshot.data!.docs.length,
+                                                  scrollDirection: Axis.vertical,
+                                                  itemBuilder: (context, index) {
+                                                    DocumentSnapshot doc = snapshot.data!.docs[index];
+                                                    return
+
+                                                      Container(
+                                                        child: Row(
+                                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                          children: [
 
 
-                                          ],
-                                        ),
+
+
+                                                            Column(
+                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                              children: [
+                                                                Text(
+                                                                  doc['name'],
+                                                                  style: const TextStyle(
+                                                                      fontSize: textMedium,
+                                                                      fontWeight: FontWeight.w400),
+                                                                ),
+                                                                Text(
+                                                                  doc['phone'],
+                                                                  style: const TextStyle(
+                                                                      fontSize: textMedium,
+                                                                      fontWeight: FontWeight.w400),
+                                                                ),
+                                                                Text(
+                                                                  doc['address'],
+                                                                  style: const TextStyle(
+                                                                      fontSize: textMedium,
+                                                                      fontWeight: FontWeight.w400),
+                                                                ),
+                                                                Text(
+                                                                  doc['city'],
+                                                                  style: const TextStyle(
+                                                                      fontSize: textMedium,
+                                                                      fontWeight: FontWeight.w400),
+                                                                ),
+                                                              ],
+                                                            ),
+
+                                                            IconButton(
+                                                              onPressed: () =>{ },
+                                                              icon: SvgPicture.asset(
+                                                                "assets/icons/right.svg",
+                                                                color: PrimaryBlueOcean,
+                                                                height: 25,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      )
+
+                                                    ;
+
+                                                  });}
+
+                                          }
                                       ),
+
+
 
                                     ],
                                   ),
@@ -239,7 +284,7 @@ class _PurchaseDetailViewState extends State<PurchaseDetailView> {
                                               width: 5,
                                             ),
                                             Text(
-                                              'Wink Mboma',
+                                             doc['buyername'],
                                               style: TextStyle(
                                                   fontSize: 15,
                                                   color: Colors.black,
@@ -285,19 +330,21 @@ class _PurchaseDetailViewState extends State<PurchaseDetailView> {
                                                     height: 40,
                                                   ),
                                                   Row(
-                                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+
                                                     children: [
-                                                      Text(
-                                                        'K' + doc['price'].toString() + '.00',
-                                                        style: const TextStyle(
-                                                            color: priceColor,
-                                                            fontSize: textMedium,
-                                                            fontWeight: FontWeight.bold),
+                                                      Padding(
+                                                        padding: const EdgeInsets.fromLTRB(0, 0, 150, 0 ),
+                                                        child: Text(
+                                                          'K ' + doc['price'].toString() + '.00',
+                                                          style: const TextStyle(
+                                                              color: priceColor,
+                                                              fontSize: textMedium,
+                                                              fontWeight: FontWeight.bold),
+                                                        ),
                                                       ),
 
-                                                      const SizedBox(
-                                                        width: 170,
-                                                      ),
+
+
                                                       Text(
                                                         "x"+ doc['quantity'].toString(),
                                                         style: const TextStyle(
@@ -350,7 +397,7 @@ class _PurchaseDetailViewState extends State<PurchaseDetailView> {
                                             style: const TextStyle(fontSize: textMedium),
                                           ),
                                           Text(
-                                            doc['totalAmount'].toString(),
+                                           "k "+ doc['totalAmount']+".00".toString(),
                                             style: const TextStyle(
                                                 color: priceColor,
                                                 fontSize: textMedium,
@@ -410,7 +457,7 @@ class _PurchaseDetailViewState extends State<PurchaseDetailView> {
                                           ),
                                           const Spacer(),
                                           Text(
-                                            doc['totalAmount'].toString(),
+                                            "K "+ doc['totalAmount']+".00".toString(),
                                             style: const TextStyle(
                                                 fontSize: textMedium,
                                                 color: priceColor,
@@ -489,287 +536,4 @@ class PaymentWidget extends StatelessWidget {
   }
 }
 
-class AddAddressWidget extends StatefulWidget {
-  const AddAddressWidget({
-    Key? key,
-    required this.addressId,
-  }) : super(key: key);
-  final String? addressId;
 
-  @override
-  State<AddAddressWidget> createState() => _AddAddressWidgetState();
-}
-
-class _AddAddressWidgetState extends State<AddAddressWidget> {
-  final AddressBloc _addressBloc = AddressBloc(addressRepository: Repository());
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.addressId != null) {
-      _addressBloc.add(GetAddress(widget.addressId.toString()));
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 5),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: Colors.white,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Text(
-                "Address",
-                style: TextStyle(
-                    fontSize: textMedium, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                widget.addressId == null
-                    ? Center(child: Text("Create Address"))
-                    : BlocBuilder<AddressBloc, AddressState>(
-                        bloc: _addressBloc,
-                        builder: (context, state) {
-                          if (state is AddressLoaded) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  state.addresses[0].name,
-                                  style: TextStyle(
-                                      fontSize: textMedium,
-                                      fontWeight: FontWeight.w400),
-                                ),
-                                Text(
-                                  "+265" + state.addresses[0].phone,
-                                  style: TextStyle(
-                                      fontSize: textMedium,
-                                      fontWeight: FontWeight.w400),
-                                ),
-                                Text(
-                                  state.addresses[0].address,
-                                  style: TextStyle(
-                                      fontSize: textMedium,
-                                      fontWeight: FontWeight.w400),
-                                ),
-                                Text(
-                                  state.addresses[0].city,
-                                  style: TextStyle(
-                                      fontSize: textMedium,
-                                      fontWeight: FontWeight.w400),
-                                ),
-                              ],
-                            );
-                          }
-                          return Center(
-                            child: Text("Something went wrong"),
-                          );
-                        },
-                      ),
-              ],
-            ),
-          ),
-          // Text(
-          //   "Tracking number",
-          //   style: TextStyle(fontSize: textMedium, fontWeight: FontWeight.bold),
-          // ),
-          // SizedBox(
-          //   height: 10,
-          // ),
-          // SizedBox(
-          //   height: 50,
-          //   child: TextField(
-          //     decoration: InputDecoration(
-          //         border: OutlineInputBorder(
-          //           borderRadius: BorderRadius.circular(5),
-          //         ),
-          //         hintText: "Put tracking number",
-          //         focusColor: iconBlueDark,
-          //         suffix: Padding(
-          //           padding: const EdgeInsets.symmetric(vertical: 16),
-          //           child: Icon(
-          //             Icons.edit_outlined,
-          //             color: iconBlueDark,
-          //           ),
-          //         )),
-          //   ),
-          // ),
-        ],
-      ),
-    );
-  }
-}
-
-class OrderIDWidget extends StatelessWidget {
-  const OrderIDWidget({
-    Key? key,
-    required this.orderId,
-    required this.status,
-  }) : super(key: key);
-  final String orderId;
-  final String status;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: Colors.white,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Order ID",
-              style:
-                  TextStyle(fontSize: textMedium, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      orderId,
-                      style: TextStyle(
-                          fontSize: textMedium, fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      SvgPicture.asset(
-                        "assets/icons/copy.svg",
-                        height: 18,
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Text(
-                        "Copy",
-                        style: TextStyle(
-                            color: PrimaryBlueOcean, fontSize: textMedium),
-                      ),
-                    ],
-                  )
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Text(
-              "Status",
-              style:
-                  TextStyle(fontSize: textMedium, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    status,
-                    style: TextStyle(
-                        fontSize: textMedium, fontWeight: FontWeight.w600),
-                  ),
-                  Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        color: greenColor,
-                      ),
-                      child: Text(
-                        "Confirm delivery",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: textSmall,
-                            fontWeight: FontWeight.bold),
-                      ))
-                ],
-              ),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class AddressWidget extends StatefulWidget {
-  const AddressWidget({
-    Key? key,
-    required this.addressId,
-  }) : super(key: key);
-  final String addressId;
-
-  @override
-  State<AddressWidget> createState() => _AddressWidgetState();
-}
-
-class _AddressWidgetState extends State<AddressWidget> {
-  final AddressBloc _addressBloc = AddressBloc(addressRepository: Repository());
-
-  @override
-  void initState() {
-    super.initState();
-    _addressBloc.add(GetAddress(widget.addressId));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        SvgPicture.asset(
-          "assets/icons/coolicon.svg",
-          height: 20,
-        ),
-        SizedBox(
-          width: 10,
-        ),
-        BlocProvider(
-          create: (_) => _addressBloc,
-          child: BlocBuilder<AddressBloc, AddressState>(
-            builder: (context, state) {
-              return Text(
-                state is AddressLoaded ? state.addresses[0].name : "",
-                style: TextStyle(
-                    fontSize: textMedium, fontWeight: FontWeight.bold),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-}

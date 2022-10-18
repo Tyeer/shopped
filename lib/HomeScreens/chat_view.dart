@@ -73,7 +73,7 @@ void callChatDetail(String name, String uid, String image){
 
 
                 StreamBuilder<QuerySnapshot>(
-                    stream: FirebaseFirestore.instance.collection('users').where('Uid', isNotEqualTo: currentuser ).snapshots(),
+                    stream: FirebaseFirestore.instance.collection('chats').where('Uid', isEqualTo: currentuser).snapshots(),
                     builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot){
                       if (snapshot.hasError){
                         return Center(
@@ -123,24 +123,24 @@ void callChatDetail(String name, String uid, String image){
                                             onTap: () {
 
                                               callChatDetail(
-                                                  doc['Fullname'],
+                                                  doc['friendName'],
                                                   doc['Uid'],
-                                                  doc['userImage']
+                                                  doc['friendImage']
                                               )
                                               ;
                                             },
                                             leading: CircleAvatar(
                                               radius: 30,
                                               backgroundColor: Colors.blue,
-                                              backgroundImage: NetworkImage(doc['userImage']),
+                                              backgroundImage: NetworkImage(doc['friendImage']),
                                             ),
                                             title: Text(
-                                              doc['Fullname'],
+                                              doc['friendName'],
                                               style: const TextStyle(
                                                   fontSize: 14, fontWeight: FontWeight.bold),
                                             ),
                                             subtitle:  Text(
-                                                doc['Password'],
+                                               'hello there',
                                                 style: const TextStyle(
                                                     fontSize: 12, color: Colors.grey)
                                             ),
@@ -151,14 +151,6 @@ void callChatDetail(String name, String uid, String image){
                                               crossAxisAlignment: CrossAxisAlignment.end,
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
-                                                /*CircleAvatar(
-                                                  radius: 10,
-                                                  backgroundColor: Colors.red,
-                                                  child: Text(
-                                                    "1",
-                                                    style: TextStyle(color: Colors.white),
-                                                  ),
-                                                ),*/
 
                                                 Row(
                                                   mainAxisSize: MainAxisSize.min,
@@ -168,7 +160,7 @@ void callChatDetail(String name, String uid, String image){
                                                       width: 5,
                                                     ),
                                                     Text(
-                                                      '22/08/2022',
+                                                       doc['date'],
                                                       style: const TextStyle(color: Colors.black),
                                                     ),
                                                   ],
